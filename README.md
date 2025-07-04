@@ -1,4 +1,4 @@
-# minecraft-worlds
+# youtube
 Files for my YouTube channel (code, world downloads)
 
 > [!NOTE]\

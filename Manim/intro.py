@@ -155,34 +155,11 @@ class Dance:
             cell.weight = 1
 
             x, y = random()-.5, random()-.5
-            x += -.2 if x < 0 else .2
-            y += -.2 if y < 0 else .2
+            x += -.3 if x < 0 else .3
+            y += -.3 if y < 0 else .3
             cell.pos = v2(x*self.bounds.right, y*self.bounds.bottom)
 
-        # ugly but works (need to combine animations and scaling is weird)
-        for cell in voronoi.cells:
-            cell.base_pos = cell.pos
-
         voronoi.update()
-
-    def all(self, voronoi, t):
-        scale = abs(t-.5)*2 + 1
-        if t < .5:
-            weight = 10 - 18*t
-            shift = 1.5
-        else:
-            weight = 1
-            shift = (1-t)*.5 + 1
-
-        for i in range(3):
-            cell = voronoi.cells[i]
-            cell.pos = cell.base_pos * scale
-            #cell.radius = 10*scale
-
-        for i in range(3, len(voronoi.cells)):
-            cell = voronoi.cells[i]
-            cell.pos = cell.base_pos * shift * scale
-            cell.weight = weight
 
 
 class Intro(Scene):
@@ -248,14 +225,17 @@ class Intro(Scene):
 
         dance.init3(voronoi)
 
-        """
         voronoi.play(self, dance.arrive3, run_time=5, rate_func=double_smooth)
         voronoi.play(self, dance.cut, run_time=5, rate_func=there_and_back)
         self.wait(.5)
-        """
 
         everything = VGroup(voronoi.polygons, voronoi.dots)
-
+        # ok I give up for this animation
+        self.play(FadeOut(everything), run_time=1)
         dance.init_all(voronoi)
-        voronoi.play(self, dance.all, run_time=3, rate_func=double_smooth)
+        self.play(FadeIn(everything), run_time=1)
+        self.wait(1)
+        self.play(FadeOut(everything), run_time=1)
+        everything.scale(.45)
+        self.play(FadeIn(everything), run_time=1)
         self.wait(2)

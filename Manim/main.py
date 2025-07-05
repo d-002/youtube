@@ -1,3 +1,4 @@
+from math import pi, cos, sin
 from manim import *
 from fast_voronoi import *
 from fast_voronoi.polygons import make_polygons
@@ -41,7 +42,6 @@ class VoronoiAnim:
 
             polygon.set_points_as_corners(dots)
             polygon.set_opacity(1) # fallback
-            point = self.dots[i]
             self.style_polygon(polygon, self.colors[i])
 
             index += 1
@@ -76,16 +76,55 @@ class Dance:
         self.bounds = Bounds(x, y, w, h)
 
     def init1(self, voronoi):
-        voronoi.cells[0].pos = v2(self.bounds.right, 0)
+        black, white = voronoi.cells[:2]
+        black.pos = v2(self.bounds.right, 0)
+        white.pos = v2(self.bounds.left, 0)
+        black.weight = 1
+        white.weight = 100
 
-        for i in range(1, len(voronoi.cells)):
+        for i in range(2, len(voronoi.cells)):
             cell = voronoi.cells[i]
             cell.weight = 100
-            cell.pos = self.bounds.tl*.5
+            cell.pos = v2(self.bounds.left, i)
 
     def arrive1(self, voronoi, t):
         black = voronoi.cells[0]
-        black.pos.x = (1-t)*self.bounds.right
+        black.pos.x = (1-t) * self.bounds.right
+
+    def arrive2(self, voronoi, t):
+        black, white = voronoi.cells[:2]
+        black.pos.x = t * (.2*self.bounds.right)
+        white.pos.x = (1-t*.8) * self.bounds.left
+
+        dist = abs(black.pos.x-white.pos.x)
+        white.weight = 5*dist
+
+    def grow(self, voronoi, t):
+        white = voronoi.cells[1]
+        white.weight = (1-t) * (3*0.4*self.bounds.w - 1) + 1
+
+        light = int(max(0, 2 - t*2)*255)
+        dot = voronoi.dots[1]
+        dot.set_color(ManimColor.from_rgb((light, light, light)))
+
+    def close(self, voronoi, t):
+        black, white = voronoi.cells[:2]
+        black.pos.x = (t*.1 + .2)*self.bounds.right
+        white.pos.x = (1-t) * (.2*self.bounds.left)
+
+    def updown(self, voronoi, t):
+        white = voronoi.cells[1]
+        white.pos.y = t * (.2*self.bounds.bottom)
+
+    def rotate(self, voronoi, t):
+        black, white = voronoi.cells[:2]
+
+        a1 = (3*pi) * max(0, t*1.05 - .05) # black (lag)
+        a2 = 3*pi*t + pi # white
+        radius = .2*self.bounds.right
+
+        black.pos = v2(cos(a1), -sin(a1))*radius
+        white.pos = v2(cos(a2), -sin(a2))*radius
 
 
 class Main(Scene):
@@ -98,7 +137,13 @@ class Main(Scene):
             polygon.set_stroke(width=0)
             polygon.set_fill(color, opacity=1)
 
-        def style_dot(dot: Dot, color: ManimColor):
+        def style_dot_white(dot: Dot, color: ManimColor):
+            dot.set_color(WHITE)
+
+        def style_dot_none(dot: Dot, color: ManimColor):
+            pass
+
+        def style_dot_invert(dot: Dot, color: ManimColor):
             r, g, b = color.to_rgb()
             r, g, b = int(r*255), int(g*255), int(b*255)
             dot.set_color(ManimColor.from_rgb((255-r, 255-g, 255-b)))
@@ -118,11 +163,29 @@ class Main(Scene):
         cells = [Cell(v2(-2, 0), 1), Cell(v2(2, 0), 2)]
         colors = [BLACK, WHITE]
 
-        funcs = style_poly_fill, style_dot
+        funcs = style_poly_fill, style_dot_white
         voronoi = VoronoiAnim(options, bounds, cells, colors, funcs, True)
 
         self.add(voronoi.polygons)
         self.add(voronoi.dots)
         dance.init1(voronoi)
         voronoi.update()
-        voronoi.play(self, dance.arrive1, run_time=2)
+
+        voronoi.play(self, dance.arrive1, run_time=2, rate_func=rush_from)
+        self.wait(1.2)
+
+        voronoi.play(self, dance.arrive2, run_time=2)
+        self.wait(.8)
+
+        voronoi.style_dot = style_dot_none
+        voronoi.play(self, dance.grow, run_time=4, rate_func=slow_into)
+        self.wait(2)
+
+        voronoi.style_dot = style_dot_invert
+        voronoi.play(self, dance.close, run_time=2, rate_func=there_and_back)
+        self.wait(1.5)
+        voronoi.play(self, dance.close, run_time=1, rate_func=there_and_back)
+        self.wait(.3)
+        voronoi.play(self, dance.updown, run_time=3, rate_func=there_and_back)
+        self.wait(.8)
+        voronoi.play(self, dance.rotate, run_time=3)

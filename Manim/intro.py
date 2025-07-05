@@ -1,3 +1,4 @@
+from random import seed, random
 from math import pi, cos, sin
 from manim import *
 from fast_voronoi import *
@@ -146,8 +147,45 @@ class Dance:
 
         green.pos.y = (1 - 2*t) * .1*self.bounds.top
 
+    def init_all(self, voronoi):
+        seed(0)
 
-class Main(Scene):
+        for i in range(3, len(voronoi.cells)):
+            cell = voronoi.cells[i]
+            cell.weight = 1
+
+            x, y = random()-.5, random()-.5
+            x += -.2 if x < 0 else .2
+            y += -.2 if y < 0 else .2
+            cell.pos = v2(x*self.bounds.right, y*self.bounds.bottom)
+
+        # ugly but works (need to combine animations and scaling is weird)
+        for cell in voronoi.cells:
+            cell.base_pos = cell.pos
+
+        voronoi.update()
+
+    def all(self, voronoi, t):
+        scale = abs(t-.5)*2 + 1
+        if t < .5:
+            weight = 10 - 18*t
+            shift = 1.5
+        else:
+            weight = 1
+            shift = (1-t)*.5 + 1
+
+        for i in range(3):
+            cell = voronoi.cells[i]
+            cell.pos = cell.base_pos * scale
+            #cell.radius = 10*scale
+
+        for i in range(3, len(voronoi.cells)):
+            cell = voronoi.cells[i]
+            cell.pos = cell.base_pos * shift * scale
+            cell.weight = weight
+
+
+class Intro(Scene):
     def construct(self):
         def style_poly_transparent(polygon: Polygon, color: tuple):
             polygon.set_stroke(color)
@@ -171,26 +209,29 @@ class Main(Scene):
 
             dot.set_color(ManimColor.from_rgb((r, g, b)))
 
+        dance = Dance(self.camera)
+        bounds = dance.bounds
+
+        options = Options(segments_density=10, divide_lines=True)
+        cells = [Cell(v2(i, 0), 1) for i in range(8)]
+        colors = [BLACK, WHITE, GREEN, YELLOW, BLUE, RED, PURPLE, ORANGE]
+
+        funcs = style_poly_fill, style_dot_invert
+        voronoi = VoronoiAnim(options, bounds, cells, colors, funcs, True)
+
+        """
         text = Text('Headphones recommended',
                     font_size=20)
         self.play(Write(text, run_time=2))
         self.wait(1)
         self.play(FadeOut(text, run_time=5))
-
-        dance = Dance(self.camera)
-        bounds = dance.bounds
-
-        options = Options(segments_density=10, divide_lines=True)
-        cells = [Cell(v2(i, 0), 1) for i in range(3)]
-        colors = [BLACK, WHITE, GREEN]
-
-        funcs = style_poly_fill, style_dot_invert
-        voronoi = VoronoiAnim(options, bounds, cells, colors, funcs, True)
+        """
 
         self.add(voronoi.polygons)
         self.add(voronoi.dots)
         dance.init1(voronoi)
 
+        """
         voronoi.play(self, dance.arrive1, run_time=2, rate_func=rush_from)
         self.wait(1.5)
         voronoi.play(self, dance.arrive2, run_time=4, rate_func=double_smooth)
@@ -203,8 +244,18 @@ class Main(Scene):
         self.wait(1.5)
         voronoi.play(self, dance.rotate, run_time=5)
         self.wait(1.5)
+        """
 
         dance.init3(voronoi)
 
+        """
         voronoi.play(self, dance.arrive3, run_time=5, rate_func=double_smooth)
         voronoi.play(self, dance.cut, run_time=5, rate_func=there_and_back)
+        self.wait(.5)
+        """
+
+        everything = VGroup(voronoi.polygons, voronoi.dots)
+
+        dance.init_all(voronoi)
+        voronoi.play(self, dance.all, run_time=3, rate_func=double_smooth)
+        self.wait(2)

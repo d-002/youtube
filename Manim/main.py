@@ -1,0 +1,68 @@
+from manim import Scene, Polygon, VGroup, ValueTracker, RED, BLUE_E
+from fast_voronoi import *
+from fast_voronoi.polygons import make_polygons
+
+# todo: use only vgroup, animate
+
+class VoronoiAnim:
+    def __init__(self, options: Options, bounds: Bounds, cells: list[Cell],
+                 colors: list[tuple], buffer: int = 10, **kwargs):
+        self.options = options
+        self.bounds = bounds
+        self.cells = cells
+        self.colors = colors
+
+        # could be a varying number of polygons per cell, so add a small buffer
+        length = len(cells)+buffer
+        dummy = [(-1, 0, 0), (1, 0, 0), (0, 1.41, 0)]
+        self.vgroup = VGroup(Polygon(*dummy, **kwargs) for _ in range(length))
+        self._set_points()
+
+    def _set_points(self):
+        polygons = make_polygons(self.options, self.bounds, self.cells)
+
+        index = 0
+        for i, points_raw in polygons:
+            points = [(u.x, u.y, 0) for u in points_raw]
+
+            if index >= len(self.vgroup):
+                raise ValueError('Not enough polygons in VoronoiAnim buffer')
+            polygon = self.vgroup[index]
+
+            polygon.set_points_as_corners(points)
+            polygon.set_stroke(self.colors[i])
+            polygon.set_fill(self.colors[i])
+            polygon.set_opacity(1)
+
+            index += 1
+
+        # hide the unused polygons
+        for i in range(index, len(self.vgroup)):
+            self.vgroup[i].set_opacity(0)
+
+    def play(self, scene: Scene, func, **kwargs):
+        def updater(_):
+            func(self, t.get_value())
+            self._set_points()
+
+        t = ValueTracker(0)
+        self.vgroup.add_updater(updater)
+        scene.play(t.animate.set_value(1), **kwargs)
+        self.vgroup.clear_updaters()
+
+class Main(Scene):
+    def construct(self):
+        def updater_swap_weights(voronoi, t):
+            c1, c2 = voronoi.cells
+            c1.weight = 1+t
+            c2.weight = 2-t
+
+        cells = [Cell(v2(-2, 0), 1), Cell(v2(2, 0), 2)]
+        bounds = Bounds(-5, -4, 10, 8)
+        options = Options(segments_density=10, divide_lines=True)
+        colors = [RED, BLUE_E]
+        voronoi = VoronoiAnim(options, bounds, cells, colors, stroke_width=0)
+
+        self.add(voronoi.vgroup)
+        voronoi.play(self, updater_swap_weights, run_time=3)
+        self.wait(1)

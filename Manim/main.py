@@ -1,4 +1,4 @@
-from manim import Scene, Square, Polygon, VGroup, ValueTracker, RED, BLUE_E
+from manim import *
 from fast_voronoi import *
 from fast_voronoi.polygons import make_polygons
 
@@ -52,6 +52,12 @@ class VoronoiAnim:
         scene.play(t.animate.set_value(1), **kwargs)
         self.vgroup.clear_updaters()
 
+def bounds_from_camera(camera: Camera) -> Bounds:
+    cx, cy = camera.frame_center[:2]
+    w, h = camera.frame_width, camera.frame_height
+    bounds = Bounds(cx-w/2, cy-h/2, w, h)
+    return bounds
+
 class Main(Scene):
     def construct(self):
         def style_poly_transparent(polygon: Polygon, color: tuple):
@@ -67,10 +73,13 @@ class Main(Scene):
             c1.weight = 1+t
             c2.weight = 2-t
 
-        cells = [Cell(v2(-2, 0), 1), Cell(v2(2, 0), 2)]
-        bounds = Bounds(-5, -4, 10, 8)
+        self.camera.background_color = WHITE
+
         options = Options(segments_density=10, divide_lines=True)
+        bounds = bounds_from_camera(self.camera)
+        cells = [Cell(v2(-2, 0), 1), Cell(v2(2, 0), 2)]
         colors = [RED, BLUE_E]
+
         voronoi = VoronoiAnim(options, bounds, cells, colors, style_poly_fill)
 
         self.add(voronoi.vgroup)

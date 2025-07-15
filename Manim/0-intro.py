@@ -4,6 +4,8 @@ from manim import *
 from fast_voronoi import *
 from fast_voronoi.polygons import make_polygons
 
+from theme import *
+
 
 class VoronoiAnim:
     def __init__(self, options: Options, bounds: Bounds, cells: list[Cell],
@@ -217,8 +219,11 @@ class Dance:
         white = voronoi.cells[1]
         white.weight = 5 + 100*t
 
-class Intro(Scene):
+class Main(Scene):
     def construct(self):
+        Text.set_default(color=FG)
+        self.camera.background_color = BG
+
         def style_poly_transparent(polygon: Polygon, color: tuple):
             polygon.set_stroke(color)
             polygon.set_fill(color, opacity=.5)
@@ -231,13 +236,10 @@ class Intro(Scene):
             r, g, b = color.to_rgb()
             r, g, b = int(r*255), int(g*255), int(b*255)
 
-            if r == g == b:
-                r, g, b = 255-r, 255-g, 255-b
+            if r+g+b < 384:
+                r, g, b = min(r+50, 255), min(g+50, 255), min(b+50, 255)
             else:
-                if r+g+b < 384:
-                    r, g, b = min(r+50, 255), min(g+50, 255), min(b+50, 255)
-                else:
-                    r, g, b = max(r-50, 0), max(g-50, 0), max(b-50, 0)
+                r, g, b = max(r-50, 0), max(g-50, 0), max(b-50, 0)
 
             dot.set_color(ManimColor.from_rgb((r, g, b)))
 
@@ -249,12 +251,13 @@ class Intro(Scene):
 
         options = Options(segments_density=10, divide_lines=True)
         cells = [Cell(v2(i, 0), 1) for i in range(8)]
-        colors = [BLACK, WHITE, GRAY_B, YELLOW, BLUE, RED, GREEN, ORANGE]
+        colors = [BG, FG, GRAY, COL1, COL2, COL3, COL4, COL5]
 
         funcs = style_poly_fill, style_dot_invert
         voronoi = VoronoiAnim(options, bounds, cells, colors, funcs, True)
 
         text1 = Text('Headphones recommended', font_size=20)
+        text1.set_stroke(FG)
         self.play(Write(text1, run_time=2))
         self.wait(1)
         self.play(FadeOut(text1, run_time=5))
@@ -275,6 +278,7 @@ class Intro(Scene):
         self.wait(1.5)
         voronoi.play(self, dance.rotate, run_time=5)
         text2 = Text('A presentation by D_00', font_size=30)
+        text2.set_stroke(FG)
         text2.to_corner(UL)
         self.play(Create(text2), run_time=1.5)
 
@@ -302,7 +306,10 @@ class Intro(Scene):
         voronoi.play(self, dance.swap, run_time=3)
         title = VGroup(Text('The beauty of', font_size=40).shift(UP),
                        Text('Voronoi diagrams', font_size=40).shift(DOWN),
-                       Text('#SOME4', color=GRAY, font_size=20).shift(2*DOWN))
+                       Text('#SoME4', color=GRAY, font_size=20).shift(1.5*DOWN))
+        title[0].set_stroke(FG)
+        title[1].set_stroke(FG)
+        title[2].set_stroke(GRAY)
         self.play(Write(title), run_time=1.5, lag_ratio=.5)
         voronoi.play(self, dance.disappear_last, run_time=1.5, rate_func=lambda t: 1-slow_into(1-t))
         self.wait(.5)

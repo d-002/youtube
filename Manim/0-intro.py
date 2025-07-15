@@ -5,13 +5,13 @@ from fast_voronoi import *
 from fast_voronoi.polygons import make_polygons
 
 from theme import *
+from utils import *
 
 
 class VoronoiAnim:
-    def __init__(self, options: Options, bounds: Bounds, cells: list[Cell],
+    def __init__(self, bounds: Bounds, cells: list[Cell],
                  colors: list[tuple], style_funcs, show_dots: bool = False,
                  buffer: int = 10):
-        self.options = options
         self.bounds = bounds
         self.cells = cells
         self.colors = colors
@@ -32,7 +32,7 @@ class VoronoiAnim:
         self.update()
 
     def update(self):
-        polygons = make_polygons(self.options, self.bounds, self.cells)
+        polygons = make_polygons(utils.options, self.bounds, self.cells)
 
         index = 0
         for i, points_raw in polygons:
@@ -74,6 +74,7 @@ class VoronoiAnim:
 
 class Dance:
     def __init__(self, camera):
+        self.bounds = utils.get_bounds(camera)
         cx, cy = camera.frame_center[:2]
         w, h = camera.frame_width, camera.frame_height
         x, y = cx-w/2, cy-h/2
@@ -249,12 +250,11 @@ class Main(Scene):
         dance = Dance(self.camera)
         bounds = dance.bounds
 
-        options = Options(segments_density=10, divide_lines=True)
         cells = [Cell(v2(i, 0), 1) for i in range(8)]
         colors = [BG, FG, GRAY, COL1, COL2, COL3, COL4, COL5]
 
         funcs = style_poly_fill, style_dot_invert
-        voronoi = VoronoiAnim(options, bounds, cells, colors, funcs, True)
+        voronoi = VoronoiAnim(bounds, cells, colors, funcs, True)
 
         text1 = Text('Headphones recommended', font_size=20)
         text1.set_stroke(FG)
@@ -304,12 +304,9 @@ class Main(Scene):
         self.wait(.5)
         dance.init_swap(voronoi)
         voronoi.play(self, dance.swap, run_time=3)
-        title = VGroup(Text('The beauty of', font_size=40).shift(UP),
-                       Text('Voronoi diagrams', font_size=40).shift(DOWN),
-                       Text('#SoME4', color=GRAY, font_size=20).shift(1.5*DOWN))
-        title[0].set_stroke(FG)
-        title[1].set_stroke(FG)
-        title[2].set_stroke(GRAY)
+        title = VGroup(Text('The beauty of', font_size=40, stroke_color=FG).shift(UP),
+                       Text('Voronoi diagrams', font_size=40, stroke_color=FG).shift(DOWN),
+                       Text('#SoME4', color=GRAY, font_size=20, stroke_color=GRAY).shift(1.5*DOWN))
         self.play(Write(title), run_time=1.5, lag_ratio=.5)
         voronoi.play(self, dance.disappear_last, run_time=1.5, rate_func=lambda t: 1-slow_into(1-t))
         self.wait(.5)

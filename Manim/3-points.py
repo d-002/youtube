@@ -9,6 +9,7 @@ from utils import *
 class Main(Scene):
     def construct(self):
         Text.set_default(color=FG, stroke_color=FG)
+        Tex.set_default(color=FG, stroke_color=FG, font_size=32)
         self.camera.background_color = BG
 
         #self.first_scene()
@@ -73,47 +74,47 @@ class Main(Scene):
         self.wait()
 
     def second_scene(self):
-        demo1 = Tex("""Definitions:
+        demo1 = Tex(r"""Definitions:
 
-\\begin{itemize}
-\\item Let $S \\subset \\mathbb{R}^2$ be a finite set of distinct Voronoi sites.
+\begin{itemize}
+\item Let $S \subset \mathbb{R}^2$ be a finite set of distinct Voronoi sites.
 
-The \\textit{common edge} $E \\subset \\mathbb{R}^2$ between two Voronoi sites $A, B \\in S$ is
-\\[E = \\{x \\in \\mathbb{R}^2, \\forall y \\in S, \\lVert \\vec{Ax} \\rVert = \\lVert \\vec{Bx} \\rVert \\leq \\lVert \\vec{xy} \\rVert \\}\\]
+The \textit{common edge} $E \subset \mathbb{R}^2$ between two Voronoi sites $A, B \in S$ is
+\[E = \{x \in \mathbb{R}^2, \forall y \in S, \lVert \vec{Ax} \rVert = \lVert \vec{Bx} \rVert \leq \lVert \vec{xy} \rVert \}\]
 
-\\item Two Voronoi cells with respective sites $A$, $B$ are said to be \\textit{neighbors} if their common edge $E$ is nonempty.
-\\end{itemize}
+\item Two Voronoi cells with respective sites $A$, $B$ are said to be \textit{neighbors} if their common edge $E$ is nonempty.
+\end{itemize}
 
 Proof:
 
-Let $A, B, C \\in \\mathbb{R}^2$ be Voronoi sites that are pairwise neighbors.
+Let $A, B, C \in \mathbb{R}^2$ be Voronoi sites that are pairwise neighbors.
 
-Let $P \\subset \\mathbb{R}^2$, the set of intersection points of the three cells, be
-\\[P = \\{x \\in \\mathbb{R}^2, \\lVert \\vec{Ax} \\rVert = \\lVert \\vec{Bx} \\rVert = \\lVert \\vec{Cx} \\rVert \\}\\]
+Let $P \subset \mathbb{R}^2$, the set of intersection points of the three cells, be
+\[P = \{x \in \mathbb{R}^2, \lVert \vec{Ax} \rVert = \lVert \vec{Bx} \rVert = \lVert \vec{Cx} \rVert \}\]
 
 Let $d_1$ and $d_2$ be the perpendicular bisectors of $AB$ and $AC$, respectively.
 
-\\begin{itemize}
-\\item Case 1: $A$, $B$ and $C$ are not colinear:
-$d_1$ and $d_2$ are not parallel, meaning they have a single intersection point and $\\lvert P \\rvert = 1$.
-\\end{itemize}""", font_size=18)
+\begin{itemize}
+\item Case 1: $A$, $B$ and $C$ are not colinear:
+$d_1$ and $d_2$ are not parallel, meaning they have a single intersection point and $\lvert P \rvert = 1$.
+\end{itemize}""", font_size=18)
 
-        demo2 = Tex("""\\begin{itemize}
-\\item Case 2: $A$, $B$ and $C$ are colinear:
+        demo2 = Tex(r"""\begin{itemize}
+\item Case 2: $A$, $B$ and $C$ are colinear:
 
-Because these names are interchangeable, we will arrange them so that $A$, $C$ and $B$ are aligned in this order ($\\vec{CA} \\cdot \\vec{CB} < 0$).
+Because these names are interchangeable, we will arrange them so that $A$, $C$ and $B$ are aligned in this order ($\vec{CA} \cdot \vec{CB} < 0$).
 
 Let $H$ be the midpoint between $A$ and $B$, which is therefore both part of $d_1$, and colinear with $A$, $B$ and $C$.
 
-By definition of $C$ strictly (distinct sites) in between $A$ and $B$, $\\lVert \\vec{HC} \\rVert < \\lVert \\vec{HA} \\rVert$.
+By definition of $C$ strictly (distinct sites) in between $A$ and $B$, $\lVert \vec{HC} \rVert < \lVert \vec{HA} \rVert$.
 
 Let $E$ be the common edge between $A$ and $B$.
 If $E$ is nonempty, an element $x$ will be picked from it.
 
-Because $\\lVert \\vec{xC} \\rVert = \\sqrt{\\lVert \\vec{xH} \\rVert^2 + \\lVert \\vec{HC} \\rVert^2}$, $\\lVert \\vec{xA} \\rVert = \\sqrt{\\lVert \\vec{xH} \\rVert^2 + \\lVert \\vec{HA} \\rVert^2}$ and $\\lVert \\vec{HC} \\rVert < \\lVert \\vec{HA} \\rVert$, it follows that $\\lVert \\vec{xC} \\rVert < \\lVert \\vec{xA} \\rVert$, which contradicts the definition of $E$.
+Because $\lVert \vec{xC} \rVert = \sqrt{\lVert \vec{xH} \rVert^2 + \lVert \vec{HC} \rVert^2}$, $\lVert \vec{xA} \rVert = \sqrt{\lVert \vec{xH} \rVert^2 + \lVert \vec{HA} \rVert^2}$ and $\lVert \vec{HC} \rVert < \lVert \vec{HA} \rVert$, it follows that $\lVert \vec{xC} \rVert < \lVert \vec{xA} \rVert$, which contradicts the definition of $E$.
 
 $E$ is therefore empty, which does not correspond to the initial conditions and renders the case impossible.
-\\end{itemize}
+\end{itemize}
 
 We therefore conclude that the intersection point between $A$, $B$ and $C$, the sites of three neighboring Voronoi cells, if it exists, is unique.
 """, font_size=18)
@@ -124,4 +125,72 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.play(FadeOut(demo1), FadeOut(demo2))
 
     def third_scene(self):
-        pass
+        title = Tex('Getting the equidistant point $P$ between $A, B, C$', font_size=48).to_edge(UP)
+        self.play(FadeIn(title), run_time=1.5)
+        self.wait(.5)
+
+        section = Tex('Perpendicular bisectors $d_{AB}$ and $d_{AC}$').to_corner(DL)
+        self.play(FadeIn(section))
+        a = Tex(r'$M = \frac{A+B}{2}, u = (y_B-y_A, x_A-x_B)$')
+        b = Tex(r'$N = \frac{A+C}{2}, v = (y_C-y_A, x_A-x_C)$')
+        a.next_to(b, UP)
+        c = Tex(r'$d_{AB} = M + tu$', font_size=28).move_to(a)
+        d = Tex(r'$d_{AC} = N + t^\prime v$', font_size=28).move_to(b)
+        self.play(Write(a))
+        self.play(Write(b))
+        self.play(ReplacementTransform(a, c))
+        self.play(ReplacementTransform(b, d))
+        self.play(c.animate.to_edge(LEFT).shift(UP), d.animate.to_edge(LEFT).shift(UP))
+
+        _section = section
+        section = Tex('Finding $P$').to_corner(DL)
+
+        e = Tex(r'$P = d_{AB} \cap d_{AC}$')
+        self.play(ReplacementTransform(_section, section), Write(e))
+        f = Tex(r'$P = M + tu = N + t^\prime v$')
+        self.play(Transform(e, f))
+        self.play(f.animate.next_to(title, DOWN).to_edge(RIGHT))
+
+        g = Tex(r'$M + tu = N + t^\prime v$')
+        self.play(ReplacementTransform(e, g))
+        h = Tex(r'$y_M + t y_u = y_N + t^\prime y_v$')
+        self.play(ReplacementTransform(g, h))
+        i = Tex(r'$t^\prime = \frac{y_M - y_N + t y_u}{y_v}$')
+        self.play(ReplacementTransform(h, i))
+        self.play(i.animate.next_to(f, DOWN))
+
+        j = Tex(r'$P = M + tu = N + t^\prime v$').move_to(f)
+        self.add(j)
+        self.play(j.animate.move_to(ORIGIN))
+        k = Tex(r'$P = M + tu$')
+        self.play(ReplacementTransform(j, k))
+        l = Tex(r'$x_P = x_M + tx_u$')
+        self.play(ReplacementTransform(k, l))
+        m = Tex(r'$P = M + tu = N + t^\prime v$').move_to(f)
+        self.add(m)
+        self.play(m.animate.next_to(l, DOWN))
+        n = Tex(r'$P = N + t^\prime v$').move_to(m)
+        self.play(ReplacementTransform(m, n))
+        o = Tex(r'$x_P = x_N + t^\prime x_v$').move_to(n)
+        self.play(ReplacementTransform(n, o))
+
+        p = Tex(r'$x_M + t x_u = x_N + t\prime x_v$')
+        self.play(ReplacementTransform(VGroup(l, o), p))
+
+        q = Tex(r'$x_M + t x_u = x_N + \frac{y_M - y_N + t y_u}{y_v} x_v$')
+        self.play(ReplacementTransform(p, q))
+        r = Tex(r'$x_M + t x_u = x_N + (y_M - y_N + t y_u)\frac{x_v}{y_v}$')
+        self.play(ReplacementTransform(q, r))
+        s = Tex(r'$x_M + t x_u = x_N + (y_M - y_N)\frac{x_v}{y_v} + t y_u\frac{x_v}{y_v}$')
+        self.play(ReplacementTransform(r, s))
+        t = Tex(r'$x_M - x_N - (y_M - y_N)\frac{x_v}{y_v} = t y_u\frac{x_v}{y_v} - t x_u$')
+        self.play(ReplacementTransform(s, t))
+        u = Tex(r'$x_M - x_N - (y_M - y_N)\frac{x_v}{y_v} = t (y_u\frac{x_v}{y_v} - x_u)$')
+        self.play(ReplacementTransform(t, u))
+        v = Tex(r'$t = \frac{x_M - x_N - (y_M - y_N)\frac{x_v}{y_v}}{y_u\frac{x_v}{y_v} - x_u}$')
+        self.play(ReplacementTransform(u, v))
+        self.play(f.animate.move_to(ORIGIN), v.animate.shift(DOWN))
+        w = Tex(r'$P = M + tu$')
+        self.play(ReplacementTransform(f, w))
+
+        self.wait()

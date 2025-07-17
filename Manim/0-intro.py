@@ -32,7 +32,7 @@ class VoronoiAnim:
         self.update()
 
     def update(self):
-        polygons = make_polygons(utils.options, self.bounds, self.cells)
+        polygons = make_polygons(options, self.bounds, self.cells)
 
         index = 0
         for i, points_raw in polygons:
@@ -74,13 +74,7 @@ class VoronoiAnim:
 
 class Dance:
     def __init__(self, camera):
-        self.bounds = utils.get_bounds(camera)
-        cx, cy = camera.frame_center[:2]
-        w, h = camera.frame_width, camera.frame_height
-        x, y = cx-w/2, cy-h/2
-        x, y, w, h = x-20, y-20, w+40, h+40
-
-        self.bounds = Bounds(x, y, w, h)
+        self.bounds = get_bounds(camera, 20)
 
     def init1(self, voronoi):
         black, white = voronoi.cells[:2]

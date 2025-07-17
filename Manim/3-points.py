@@ -11,6 +11,10 @@ class Main(Scene):
         Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
+        #self.first_scene()
+        self.second_scene()
+
+    def first_scene(self):
         bounds = get_bounds(self.camera, 1)
         A, B, C = cells = [Cell(v2(-1, 2)), Cell(v2(-2, -3)), Cell(v2(4, 0))]
         polygons, dots, colors = make_polygons_and_dots(
@@ -46,3 +50,26 @@ class Main(Scene):
         self.play(P.animate.move_to((u.x, u.y, 0)), run_time=.7)
         u = ab.M + ab.u
         self.play(P.animate.move_to((u.x, u.y, 0)), run_time=.7)
+        self.wait()
+
+        perp_text = Text('Perpendicular bisector', font_size=36).to_corner(DR)
+        self.play(Write(perp_text), run_time=2)
+        self.wait()
+
+        self.play(Write(ac_line))
+        self.wait(.5)
+
+        inter = get_equidistant(A.pos, B.pos, C.pos)
+        self.play(P.animate.move_to((inter.x, inter.y, 0)), run_time=2)
+
+        new_p_label = Text('P', color=COL5, stroke_color=COL5).next_to(P, UR)
+        self.play(Transform(p_label, new_p_label))
+        self.wait()
+
+        self.play(Unwrite(ab_line), Unwrite(ac_line), Unwrite(dots),
+                  Unwrite(labels), Unwrite(P), Unwrite(p_label),
+                  Unwrite(perp_text))
+        self.wait()
+
+    def second_scene(self):
+        pass

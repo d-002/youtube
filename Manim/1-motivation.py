@@ -1,12 +1,11 @@
 from random import randint
 from math import cos, sin, pi, tau
-
 from manim import *
+
+from fast_voronoi import *
 
 from theme import *
 from utils import *
-
-from fast_voronoi import *
 
 PRODUCTION = True
 

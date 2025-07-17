@@ -11,7 +11,7 @@ PRODUCTION = True
 
 class Main(Scene):
     def construct(self):
-        Text.set_default(color=FG)
+        Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
         cells = [Cell(v2(-1, -2), 1), Cell(v2(4, 0), 1), Cell(v2(2, 2), 1)]

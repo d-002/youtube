@@ -12,7 +12,7 @@ from utils import *
 
 class Main(Scene):
     def construct(self):
-        Text.set_default(color=FG)
+        Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
         self.first_scene()

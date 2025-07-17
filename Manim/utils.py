@@ -18,6 +18,31 @@ def get_bounds(camera, margin):
 def get_color_from_t(colors, t):
     return colors[min(max(int(t*len(colors)), 0), len(colors)-1)]
 
+smol = 1e-9
+def get_ends_from_bisector(box, line):
+    bounds: list[float] = [0]*4
+
+    if abs(line.u.x) > smol:
+        bounds[0] = (box.left-line.M.x) / line.u.x
+        bounds[1] = (box.right-line.M.x) / line.u.x
+    if abs(line.u.y) > smol:
+        bounds[2] = (box.top-line.M.y) / line.u.y
+        bounds[3] = (box.bottom-line.M.y) / line.u.y
+
+    if abs(line.u.x) > smol:
+        if abs(line.u.y) > smol:
+            bounds.sort()
+
+            tmin = max(bounds[:2])
+            tmax = min(bounds[2:])
+        else:
+            tmin, tmax = sorted(bounds[:2])
+    else:
+        tmin, tmax = sorted(bounds[2:])
+
+    u, v = line.M + line.u*tmin, line.M + line.u*tmax
+    return (u.x, u.y, 0), (v.x, v.y, 0)
+
 def make_polygons_and_dots(cells, bounds, colors, theme=None):
     """if theme is None, assign the colors by index and return polygons+dots
     otherwise, use theme as a function to choose a color in colors, and return

@@ -216,7 +216,7 @@ class Dance:
 
 class Main(Scene):
     def construct(self):
-        Text.set_default(color=FG)
+        Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
         def style_poly_transparent(polygon: Polygon, color: tuple):

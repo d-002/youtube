@@ -12,7 +12,8 @@ class Main(Scene):
         self.camera.background_color = BG
 
         #self.first_scene()
-        self.second_scene()
+        #self.second_scene()
+        self.third_scene()
 
     def first_scene(self):
         bounds = get_bounds(self.camera, 1)
@@ -68,8 +69,59 @@ class Main(Scene):
 
         self.play(Unwrite(ab_line), Unwrite(ac_line), Unwrite(dots),
                   Unwrite(labels), Unwrite(P), Unwrite(p_label),
-                  Unwrite(perp_text))
+                  Unwrite(perp_text, run_time=.5))
         self.wait()
 
     def second_scene(self):
+        demo1 = Tex("""Definitions:
+
+\\begin{itemize}
+\\item Let $S \\subset \\mathbb{R}^2$ be a finite set of distinct Voronoi sites.
+
+The \\textit{common edge} $E \\subset \\mathbb{R}^2$ between two Voronoi sites $A, B \\in S$ is
+\\[E = \\{x \\in \\mathbb{R}^2, \\forall y \\in S, \\lVert \\vec{Ax} \\rVert = \\lVert \\vec{Bx} \\rVert \\leq \\lVert \\vec{xy} \\rVert \\}\\]
+
+\\item Two Voronoi cells with respective sites $A$, $B$ are said to be \\textit{neighbors} if their common edge $E$ is nonempty.
+\\end{itemize}
+
+Proof:
+
+Let $A, B, C \\in \\mathbb{R}^2$ be Voronoi sites that are pairwise neighbors.
+
+Let $P \\subset \\mathbb{R}^2$, the set of intersection points of the three cells, be
+\\[P = \\{x \\in \\mathbb{R}^2, \\lVert \\vec{Ax} \\rVert = \\lVert \\vec{Bx} \\rVert = \\lVert \\vec{Cx} \\rVert \\}\\]
+
+Let $d_1$ and $d_2$ be the perpendicular bisectors of $AB$ and $AC$, respectively.
+
+\\begin{itemize}
+\\item Case 1: $A$, $B$ and $C$ are not colinear:
+$d_1$ and $d_2$ are not parallel, meaning they have a single intersection point and $\\lvert P \\rvert = 1$.
+\\end{itemize}""", font_size=18)
+
+        demo2 = Tex("""\\begin{itemize}
+\\item Case 2: $A$, $B$ and $C$ are colinear:
+
+Because these names are interchangeable, we will arrange them so that $A$, $C$ and $B$ are aligned in this order ($\\vec{CA} \\cdot \\vec{CB} < 0$).
+
+Let $H$ be the midpoint between $A$ and $B$, which is therefore both part of $d_1$, and colinear with $A$, $B$ and $C$.
+
+By definition of $C$ strictly (distinct sites) in between $A$ and $B$, $\\lVert \\vec{HC} \\rVert < \\lVert \\vec{HA} \\rVert$.
+
+Let $E$ be the common edge between $A$ and $B$.
+If $E$ is nonempty, an element $x$ will be picked from it.
+
+Because $\\lVert \\vec{xC} \\rVert = \\sqrt{\\lVert \\vec{xH} \\rVert^2 + \\lVert \\vec{HC} \\rVert^2}$, $\\lVert \\vec{xA} \\rVert = \\sqrt{\\lVert \\vec{xH} \\rVert^2 + \\lVert \\vec{HA} \\rVert^2}$ and $\\lVert \\vec{HC} \\rVert < \\lVert \\vec{HA} \\rVert$, it follows that $\\lVert \\vec{xC} \\rVert < \\lVert \\vec{xA} \\rVert$, which contradicts the definition of $E$.
+
+$E$ is therefore empty, which does not correspond to the initial conditions and renders the case impossible.
+\\end{itemize}
+
+We therefore conclude that the intersection point between $A$, $B$ and $C$, the sites of three neighboring Voronoi cells, if it exists, is unique.
+""", font_size=18)
+        demo1.shift(3.5*LEFT)
+        demo2.shift(3.5*RIGHT)
+        self.play(Write(demo1), Write(demo2), run_time=2, lag_ratio=.3)
+        self.wait()
+        self.play(FadeOut(demo1), FadeOut(demo2))
+
+    def third_scene(self):
         pass

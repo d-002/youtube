@@ -15,15 +15,32 @@ def get_bounds(camera, margin):
 
     return Bounds(x, y, w, h)
 
-def make_polygons_and_dots(cells, bounds, colors):
+def get_color_from_t(colors, t):
+    return colors[min(max(int(t*len(colors)), 0), len(colors)-1)]
+
+def make_polygons_and_dots(cells, bounds, colors, theme=None):
+    """if theme is None, assign the colors by index and return polygons+dots
+    otherwise, use theme as a function to choose a color in colors, and return
+    polygons, dots, and a list of colors"""
+
     polygons = make_polygons(options, bounds, cells, False)
     polygons = VGroup(Polygon(*[(u.x, u.y, 0) for u in polygon]) for _, polygon in polygons)
     dots = VGroup(Dot((cell.pos.x, cell.pos.y, 0)).set_z_index(1) for cell in cells)
-    for color, polygon in zip(colors, polygons):
+
+    new_colors = []
+    for i, polygon in enumerate(polygons):
+        if theme is None:
+            color = colors[i]
+        else:
+            color = get_color_from_t(colors, theme(bounds, cells[i]))
+            new_colors.append(color)
+
         polygon.set_fill(color, opacity=1)
         polygon.set_stroke(FG)
 
-    return polygons, dots
+    if theme is None:
+        return polygons, dots
+    return polygons, dots, new_colors
 
 def add_polygons_margin(dots, polygons, margin):
     """Warning: may not work for weighted Voronoi polygons"""

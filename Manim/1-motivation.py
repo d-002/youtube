@@ -23,7 +23,8 @@ class Main(Scene):
     def first_scene(self):
         svg = SVGMobject('resources/voronoy.svg').scale(2.5).shift(.3*UP)
         img = ImageMobject('resources/voronoy.png').scale(2.5/4).shift(.3*UP)
-        voronoy = Text('Georgy Feodosevich Voronyi', font_size=20, stroke_color=FG).next_to(img, DOWN)
+        voronoy = Text('Georgy Feodosevich Voronyi',
+                       font_size=20, stroke_color=FG).next_to(img, DOWN)
 
         example = SVGMobject('resources/diagram_example.svg').shift(20*RIGHT).scale(3)
 
@@ -38,7 +39,9 @@ class Main(Scene):
             example.animate.shift(17*LEFT), run_time=2)
         self.wait()
 
-        self.play(map(lambda m: m.animate.shift(10*UP), (svg, img, voronoy, example)), run_time=2)
+        self.play(map(
+            lambda m: m.animate.shift(10*UP), (svg, img, voronoy, example)),
+                  run_time=2)
         self.remove(svg, img, voronoy, example)
 
     def second_scene(self, cells):
@@ -80,8 +83,10 @@ class Main(Scene):
                 lag_ratio=.001))
         self.wait()
 
-        circles = VGroup(Circle(radius=.05, color=color, fill_opacity=1).move_to((cell.pos.x, cell.pos.y, 0))
-                         for cell, color in zip(cells, colors))
+        circles = VGroup(
+                Circle(radius=.05, color=color, fill_opacity=1)
+                .move_to((cell.pos.x, cell.pos.y, 0))
+                for cell, color in zip(cells, colors))
 
         self.play(AnimationGroup(
             (dots[i].animate.set_color(colors[i]) for i in range(3)),
@@ -177,8 +182,9 @@ class Main(Scene):
             self.play(Create(lines, lag_ratio=.5), run_time=.5)
 
             i = closest_center_i(pos, centers)
-            self.play((line.animate.set_stroke(**({'color': FG} if i == j else {'opacity': 0}))
-                      for j, line in enumerate(lines)), run_time=.5)
+            self.play((line.animate.set_stroke(
+                **({'color': FG} if i == j else {'opacity': 0}))
+                       for j, line in enumerate(lines)), run_time=.5)
 
             self.play(lines[i].animate.set_stroke(color=colors[i], opacity=0),
                       Uncreate(lines[i]),
@@ -217,5 +223,6 @@ class End(Scene):
                   polygons[2].animate.set_fill(opacity=1))
         self.wait()
 
-        self.play(Unwrite(text), Unwrite(polygons), Unwrite(dots), run_time=3, lag_ratio=.2)
+        self.play(Unwrite(text), Unwrite(polygons), Unwrite(dots),
+                  run_time=3, lag_ratio=.2)
         self.wait()

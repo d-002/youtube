@@ -245,7 +245,7 @@ class Main(Scene):
         bounds = dance.bounds
 
         cells = [Cell(v2(i, 0), 1) for i in range(8)]
-        colors = [BG, FG] + THEME1
+        colors = [BG, FG] + THEME2
 
         funcs = style_poly_fill, style_dot_invert
         voronoi = VoronoiAnim(bounds, cells, colors, funcs, True)

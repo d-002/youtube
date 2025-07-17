@@ -7,7 +7,6 @@ from theme import *
 from utils import *
 
 from fast_voronoi import *
-from fast_voronoi.polygons import make_polygons
 
 PRODUCTION = True
 
@@ -18,7 +17,7 @@ class Main(Scene):
 
         cells = [Cell(v2(-1, -2), 1), Cell(v2(4, 0), 1), Cell(v2(2, 2), 1)]
 
-        #self.first_scene()
+        self.first_scene()
         rest = self.second_scene(cells)
         self.third_scene(cells, *rest)
 
@@ -46,12 +45,8 @@ class Main(Scene):
     def second_scene(self, cells):
         bounds = get_bounds(self.camera, 1)
         colors = [COL1, COL2, COL3]
-        polygons = make_polygons(options, bounds, cells)
-        polygons = VGroup(Polygon(*[(u.x, u.y, 0) for u in polygon]) for _, polygon in polygons).set_z_index(-2)
-        dots = VGroup(Dot((cell.pos.x, cell.pos.y, 0)).set_z_index(1) for cell in cells)
-        for color, polygon in zip(colors, polygons):
-            polygon.set_fill(color, opacity=1)
-            polygon.set_stroke(FG)
+        polygons, dots = make_polygons_and_dots(cells, bounds, colors)
+        polygons.set_z_index(-2)
 
         self.play(FadeIn(polygons))
         self.wait()
@@ -194,5 +189,34 @@ class Main(Scene):
             self.wait(.2)
 
         self.wait()
-        self.play(FadeOut(screen), FadeIn(polygons))
+        self.play(FadeOut(screen))
+        for polygon in polygons:
+            polygon.set_fill(opacity=0)
+        self.play(FadeIn(polygons))
+        self.play((polygon.animate.set_fill(opacity=1) for polygon in polygons),
+                  run_time=3)
+        self.wait()
+
+class End(Scene):
+    def construct(self):
+        Text.set_default(color=FG)
+        self.camera.background_color = BG
+
+        cells = [Cell(v2(-1, -2), 1), Cell(v2(4, 0), 1), Cell(v2(2, 2), 1)]
+        bounds = get_bounds(self.camera, 0)
+        colors = [COL1, COL2, COL3]
+        polygons, dots = make_polygons_and_dots(cells, bounds, colors)
+
+        self.play(AnimationGroup(FadeIn(polygons), Write(dots)), lag_ratio=.5)
+        self.wait()
+        self.play(polygons[1].animate.set_fill(opacity=.1),
+                  polygons[2].animate.set_fill(opacity=.1))
+        text = Text('All closer to the red site', font_size=24).to_corner(DL)
+        self.play(Write(text), run_time=2)
+        self.wait()
+        self.play(polygons[1].animate.set_fill(opacity=1),
+                  polygons[2].animate.set_fill(opacity=1))
+        self.wait()
+
+        self.play(Unwrite(text), Unwrite(polygons), Unwrite(dots), run_time=3, lag_ratio=.2)
         self.wait()

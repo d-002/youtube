@@ -10,6 +10,7 @@ COL2 = ManimColor.from_hex("#81B29A")
 COL3 = ManimColor.from_hex("#7A95B8")
 COL4 = ManimColor.from_hex("#F2CC8F")
 COL5 = ManimColor.from_hex("#9F78B7")
+COL6 = ManimColor.from_hex("#7787b6")
 
 def _make_gradient(col1, col2, n):
     r1, g1, b1 = col1

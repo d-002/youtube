@@ -10,6 +10,7 @@ class Main(Scene):
     def construct(self):
         Text.set_default(color=FG, stroke_color=FG)
         Tex.set_default(color=FG, stroke_color=FG, font_size=32)
+        MathTex.set_default(color=FG, stroke_color=FG, font_size=32)
         self.camera.background_color = BG
 
         #self.first_scene()
@@ -125,72 +126,115 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.play(FadeOut(demo1), FadeOut(demo2))
 
     def third_scene(self):
-        title = Tex('Getting the equidistant point $P$ between $A, B, C$', font_size=48).to_edge(UP)
+        # config
+        template = TexTemplate(preamble=r"\usepackage{xcolor}")
+        t2c1 = {'A': COL1, 'B': COL2, 'C': COL3, 'P': COL4}
+        t2c2 = {**t2c1, 'u': COL5, 'v': COL6, 'M': COL5, 'N': COL6}
+        texcolors = {}
+        name_ord = 65
+        for col in t2c2.values():
+            name = chr(name_ord)
+            name_ord += 1
+            template.add_to_preamble(r'\definecolor{'+name+'}{HTML}{'+col.to_hex()[1:]+'}')
+            texcolors[col] = name
+        Tex.set_default(tex_template=template)
+
+        def col(*args):
+            strings, pairs = args[:-1], args[-1]
+
+            dst = []
+            for s in strings:
+                final = ''
+                for c in s:
+                    found = False
+                    for c2, col in pairs.items():
+                        if c == c2:
+                            # add spaces to prevent double braces
+                            final += r' {\textcolor{'+texcolors[col]+'}{'+c+'} } '
+                            found = True
+                            break
+
+                    if not found:
+                        final += c
+
+                dst.append(final)
+
+            return dst
+
+        title = Tex(*col(r'Getting the equidistant point $P$ between $A$, $B$, $C$', t2c1), font_size=48).to_edge(UP)
         self.play(FadeIn(title), run_time=1.5)
         self.wait(.5)
 
-        section = Tex('Perpendicular bisectors $d_{AB}$ and $d_{AC}$').to_corner(DL)
+        section = Tex(*col('Finding perpendicular bisectors $d_{AB}$ and $d_{AC}$', t2c1)).to_corner(DL)
         self.play(FadeIn(section))
-        a = Tex(r'$M = \frac{A+B}{2}, u = (y_B-y_A, x_A-x_B)$')
-        b = Tex(r'$N = \frac{A+C}{2}, v = (y_C-y_A, x_A-x_C)$')
+        a = Tex(*col(r'$M = \frac{A+B}{2},$', '$u = (y_B-y_A, x_A-x_B)$', t2c2))
+        b = Tex(*col(r'$N = \frac{A+C}{2},$', '$v = (y_C-y_A, x_A-x_C)$', t2c2))
         a.next_to(b, UP)
-        c = Tex(r'$d_{AB} = M + tu$', font_size=28).move_to(a)
-        d = Tex(r'$d_{AC} = N + t^\prime v$', font_size=28).move_to(b)
-        self.play(Write(a))
-        self.play(Write(b))
-        self.play(ReplacementTransform(a, c))
-        self.play(ReplacementTransform(b, d))
+        c = Tex(*col(r'$d_{AB} =$', '$M + tu$', t2c2)).move_to(a)
+        d = Tex(*col(r'$d_{AC} =$', r'$N + t^\prime v$', t2c2)).move_to(b)
+        self.play(AnimationGroup(Write(a), Write(b), lag_ratio=.5))
+        self.play(ReplacementTransform(a, c), ReplacementTransform(b, d))
         self.play(c.animate.to_edge(LEFT).shift(UP), d.animate.to_edge(LEFT).shift(UP))
+        return
 
         _section = section
-        section = Tex('Finding $P$').to_corner(DL)
+        section = Tex('Finding $t$ in $P = M + t u$').to_corner(DL)
 
-        e = Tex(r'$P = d_{AB} \cap d_{AC}$')
+        e = MathTex('P', '=', 'd_{AB}', r'\cap', 'd_{AC}')
         self.play(ReplacementTransform(_section, section), Write(e))
-        f = Tex(r'$P = M + tu = N + t^\prime v$')
-        self.play(Transform(e, f))
-        self.play(f.animate.next_to(title, DOWN).to_edge(RIGHT))
 
-        g = Tex(r'$M + tu = N + t^\prime v$')
-        self.play(ReplacementTransform(e, g))
-        h = Tex(r'$y_M + t y_u = y_N + t^\prime y_v$')
+        ftext = 'P', '=', 'M + t u', '=', r'N + t^\prime v'
+        f = MathTex(*ftext)
+        self.wait(.5)
+        self.play(ReplacementTransform(c, f),
+                  ReplacementTransform(d, f),
+                  ReplacementTransform(e, f))
+        f1 = MathTex(*ftext)
+        self.add(f1)
+        self.play(f1.animate.to_edge(RIGHT).shift(2*UP))
+
+        g = MathTex('M + t u', '=', r'N + t^\prime v')
+        self.play(TransformMatchingTex(f, g))
+        h = MathTex('y_M + t y_u', '=', r'y_N + t^\prime y_v')
         self.play(ReplacementTransform(g, h))
-        i = Tex(r'$t^\prime = \frac{y_M - y_N + t y_u}{y_v}$')
+        i = MathTex(r't^\prime', '= ', r'\frac{y_M - y_N + t y_u}{y_v}')
         self.play(ReplacementTransform(h, i))
-        self.play(i.animate.next_to(f, DOWN))
+        self.play(i.animate.next_to(f1, DOWN))
 
-        j = Tex(r'$P = M + tu = N + t^\prime v$').move_to(f)
-        self.add(j)
-        self.play(j.animate.move_to(ORIGIN))
-        k = Tex(r'$P = M + tu$')
-        self.play(ReplacementTransform(j, k))
-        l = Tex(r'$x_P = x_M + tx_u$')
-        self.play(ReplacementTransform(k, l))
-        m = Tex(r'$P = M + tu = N + t^\prime v$').move_to(f)
-        self.add(m)
-        self.play(m.animate.next_to(l, DOWN))
-        n = Tex(r'$P = N + t^\prime v$').move_to(m)
-        self.play(ReplacementTransform(m, n))
-        o = Tex(r'$x_P = x_N + t^\prime x_v$').move_to(n)
-        self.play(ReplacementTransform(n, o))
+        f2 = MathTex(*ftext).move_to(f1)
+        self.play(f2.animate.move_to(ORIGIN))
+        f3 = MathTex(*ftext)
+        self.add(f3)
+        k = MathTex('P', '=', 'M + t u')
+        l = MathTex('P', '=', r'N + t^\prime v').shift(DOWN)
+        self.play(TransformMatchingTex(f2, k),
+                  TransformMatchingTex(f3, l))
 
-        p = Tex(r'$x_M + t x_u = x_N + t\prime x_v$')
-        self.play(ReplacementTransform(VGroup(l, o), p))
+        m = MathTex('x_P', '=', 'x_M + t x_u')
+        n = MathTex('x_P', '=', r'x_N + t^\prime x_v').move_to(l)
+        self.play(ReplacementTransform(k, m),
+                  ReplacementTransform(l, n))
 
-        q = Tex(r'$x_M + t x_u = x_N + \frac{y_M - y_N + t y_u}{y_v} x_v$')
-        self.play(ReplacementTransform(p, q))
-        r = Tex(r'$x_M + t x_u = x_N + (y_M - y_N + t y_u)\frac{x_v}{y_v}$')
+        p = MathTex('x_M + t x_u', '=', r'x_N + t^\prime x_v')
+        self.play(TransformMatchingTex(VGroup(m, n), p))
+        p_ = MathTex('x_M + t x_u', '= ', 'x_N +', 't^\prime', 'x_v')
+        self.add(p_)
+        self.remove(p)
+
+        q = MathTex('x_M + t x_u', '=', 'x_N +', r'\frac{y_M - y_N + t y_u}{y_v}', 'x_v')
+        self.play(TransformMatchingTex(VGroup(i, p_), q))
+        r = MathTex('x_M + t x_u', '=', 'x_N +', '(y_M - y_N', '+', 't y_u', ')', r'\frac{x_v}{y_v}')
         self.play(ReplacementTransform(q, r))
-        s = Tex(r'$x_M + t x_u = x_N + (y_M - y_N)\frac{x_v}{y_v} + t y_u\frac{x_v}{y_v}$')
-        self.play(ReplacementTransform(r, s))
-        t = Tex(r'$x_M - x_N - (y_M - y_N)\frac{x_v}{y_v} = t y_u\frac{x_v}{y_v} - t x_u$')
+        s = MathTex('x_M + t x_u', '=', 'x_N +', '(y_M - y_N', ')', r'\frac{x_v}{y_v}', '+ t y_u', r'\frac{x_v}{y_v}')
+        self.play(TransformMatchingTex(r, s))
+        t = MathTex(r'x_M - x_N - (y_M - y_N)\frac{x_v}{y_v}', '=', r't y_u\frac{x_v}{y_v} - t x_u')
         self.play(ReplacementTransform(s, t))
-        u = Tex(r'$x_M - x_N - (y_M - y_N)\frac{x_v}{y_v} = t (y_u\frac{x_v}{y_v} - x_u)$')
+        u = MathTex(r'x_M - x_N - (y_M - y_N)\frac{x_v}{y_v}', '=', r't (y_u\frac{x_v}{y_v} - x_u)')
         self.play(ReplacementTransform(t, u))
-        v = Tex(r'$t = \frac{x_M - x_N - (y_M - y_N)\frac{x_v}{y_v}}{y_u\frac{x_v}{y_v} - x_u}$')
+        v = MathTex(r'\text{with } t', '=', r'\frac{x_M - x_N - (y_M - y_N)\frac{x_v}{y_v}}{y_u\frac{x_v}{y_v} - x_u}')
         self.play(ReplacementTransform(u, v))
-        self.play(f.animate.move_to(ORIGIN), v.animate.shift(DOWN))
-        w = Tex(r'$P = M + tu$')
-        self.play(ReplacementTransform(f, w))
+        self.play(f1.animate.move_to(ORIGIN), v.animate.shift(DOWN))
+        w = MathTex('P', '=', 'M + t u')
+        self.play(TransformMatchingTex(f1, w))
 
         self.wait()

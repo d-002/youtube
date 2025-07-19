@@ -175,31 +175,31 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.play(AnimationGroup(Write(a), Write(b), lag_ratio=.5))
         self.play(ReplacementTransform(a, c), ReplacementTransform(b, d))
         self.play(c.animate.to_edge(LEFT).shift(UP), d.animate.to_edge(LEFT).shift(UP))
-        return
 
         _section = section
         section = Tex('Finding $t$ in $P = M + t u$').to_corner(DL)
 
-        e = MathTex('P', '=', 'd_{AB}', r'\cap', 'd_{AC}')
+        e = Tex(*col('$P$', '$=$', '$d_{AB}$', r'$\cap$', '$d_{AC}$', t2c2))
         self.play(ReplacementTransform(_section, section), Write(e))
 
-        ftext = 'P', '=', 'M + t u', '=', r'N + t^\prime v'
-        f = MathTex(*ftext)
+        ftext = col('$P$', '$=$', '$M + t u$', '$=$', r'$N + t^\prime v$', t2c2)
+        f = Tex(*ftext)
         self.wait(.5)
         self.play(ReplacementTransform(c, f),
                   ReplacementTransform(d, f),
                   ReplacementTransform(e, f))
-        f1 = MathTex(*ftext)
+        f1 = Tex(*ftext)
         self.add(f1)
         self.play(f1.animate.to_edge(RIGHT).shift(2*UP))
 
-        g = MathTex('M + t u', '=', r'N + t^\prime v')
+        g = Tex(*col('$M + t u$', '$=$', r'$N + t^\prime v$', t2c2))
         self.play(TransformMatchingTex(f, g))
-        h = MathTex('y_M + t y_u', '=', r'y_N + t^\prime y_v')
+        h = Tex(*col('$y_M + t y_u$', '$=$', r'$y_N + t^\prime y_v$', t2c2))
         self.play(ReplacementTransform(g, h))
-        i = MathTex(r't^\prime', '= ', r'\frac{y_M - y_N + t y_u}{y_v}')
+        i = Tex(*col(r'$t^\prime$', '$= $', r'$\frac{y_M - y_N + t y_u}{y_v}$', t2c2))
         self.play(ReplacementTransform(h, i))
         self.play(i.animate.next_to(f1, DOWN))
+        return
 
         f2 = MathTex(*ftext).move_to(f1)
         self.play(f2.animate.move_to(ORIGIN))

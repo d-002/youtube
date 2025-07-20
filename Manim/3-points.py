@@ -1,7 +1,13 @@
+from math import tau, cos, sin, atan2
+import numpy as np
+
 from manim import *
 
 from fast_voronoi import *
 from fast_voronoi.utils import perp_bisector, get_equidistant
+from fast_voronoi.neighbors import is_neighbor
+from fast_voronoi.intersections import cells_intersections
+from fast_voronoi.polygons import make_polygons
 
 from theme import *
 from utils import *
@@ -15,7 +21,9 @@ class Main(Scene):
 
         #self.first_scene()
         #self.second_scene()
-        self.third_scene()
+        #self.third_scene()
+        #self.fourth_scene()
+        self.fifth_scene()
 
     def first_scene(self):
         bounds = get_bounds(self.camera, 1)
@@ -239,3 +247,132 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.play(TransformMatchingTex(f1, w))
 
         self.wait()
+
+    def fourth_scene(self):
+        """
+        bounds = get_bounds(self.camera, 0)
+        np.random.seed(0)
+        cells = [Cell(v2(np.random.uniform(bounds.left+1, bounds.right-1),
+                         np.random.uniform(bounds.top+1, bounds.bottom-1)))
+                 for _ in range(50)]
+        polygons, dots, colors = make_polygons_and_dots(
+                cells, bounds, THEME1, theme_func_gradient)
+
+        for polygon in polygons:
+            polygon.set_stroke(opacity=0)
+
+        neighbors = [[] for _ in range(len(cells))]
+        for i in range(len(cells)):
+            for j in range(len(cells)):
+                if i == j:
+                    continue
+
+                if is_neighbor(bounds, cells, i, j):
+                    neighbors[i].append(j)
+
+        intersections = cells_intersections(bounds, cells, neighbors)
+        vertices = VGroup(Dot((inter.pos.x, inter.pos.y, 0), color=FG, radius=.05)
+                          for inter in intersections).set_z_index(1)
+
+        self.play(FadeIn(polygons))
+        self.wait()
+
+        poly_simple = make_polygons(Options(), bounds, cells)
+
+        edges = VGroup().set_z_index(1)
+        for _, polygon in poly_simple:
+            for i in range(len(polygon)):
+                u, v = polygon[i-1], polygon[i]
+                edges.add(Line((u.x, u.y, 0), (v.x, v.y, 0), color=FG))
+
+        self.play(Write(vertices), run_time=2)
+        self.wait()
+        self.play(Write(edges), run_time=2)
+        self.wait()
+        self.play(AnimationGroup(FadeOut(polygons), FadeOut(edges), lag_ratio=.5))
+        self.wait()
+        self.play(FadeOut(vertices))
+        self.wait()
+        """
+
+        t = ValueTracker(0)
+        vec = Vector(color=COL1)
+
+        def create_number():
+            pos = vec.get_end()
+            angle = round(atan2(pos[1], pos[0])*360) % 360
+            return MathTex('%d\deg' % angle, font_size=48).set_color(COL1).next_to(text2)
+
+        text1 = Tex('atan2(', '$y$, $x$', ')', font_size=100).set_color('#FF0000')
+        text2 = Tex('atan2(', '$P$', ')', ' =', font_size=48).to_corner(UL)
+        result1 = MathTex('0\deg', font_size=48).set_fill(color=COL1, opacity=0).next_to(text1)
+        result2 = always_redraw(create_number)
+
+        bg1 = SurroundingRectangle(text1, color=BLACK, fill_opacity=0, stroke_opacity=0).set_z_index(-1)
+        bg2 = SurroundingRectangle(VGroup(text2, result2), color=BLACK, fill_opacity=.7).set_z_index(-1)
+
+        self.camera.background_color = "#200000"
+        self.add(text1)
+        self.add(result1)
+        self.wait()
+
+        plane = NumberPlane().add_coordinates().set_z_index(-1)
+        self.camera.background_color = BG
+        self.add(bg1)
+        self.play(FadeIn(plane),
+                  ReplacementTransform(text1, text2),
+                  ReplacementTransform(bg1, bg2),
+                  ReplacementTransform(result1, result2))
+
+        radius = .15
+        point = Dot(color=COL1, radius=radius).move_to((2, 0, 0))
+        vec.put_start_and_end_on(ORIGIN, (2-radius, 0, 0))
+        self.play(Write(point), Write(vec))
+
+        def point_updater(m):
+            angle = t.get_value()*tau
+            pos_norm = np.array([cos(angle), sin(angle), 0])
+
+            m.move_to(pos_norm*2)
+            vec.put_start_and_end_on(ORIGIN, pos_norm * (2-radius))
+
+        point.add_updater(point_updater)
+        self.play(t.animate.set_value(1), rate_func=smoothstep, run_time=5)
+        point.clear_updaters()
+        self.wait()
+
+        points = VGroup(Dot((x, y, 0), color=COL1, radius=radius) for x, y in [(2.5, 0), (1.5, 1.5), (-.5, 2), (-2.5, 1), (-1, -2), (1.5, -1.5)]).set_z_index(1)
+        self.play(Write(points), Unwrite(point), vec.animate.put_start_and_end_on(ORIGIN, (2.5-radius, 0, 0)))
+        self.wait()
+
+        for point in points:
+            circle = Circle(radius=.05, color=COL1).move_to(point)
+            self.add(circle)
+            self.play(circle.animate.scale(10).set_opacity(0), run_time=.5)
+        self.wait()
+
+        def vec_updater(m):
+            point = a.get_center() + (b.get_center()-a.get_center())*t.get_value()
+            angle = atan2(point[1], point[0])
+            r = np.sqrt(np.sum(point**2))
+
+            u = np.array([cos(angle), sin(angle), 0])
+            vec.put_start_and_end_on(ORIGIN, u * (r-radius))
+            line.put_start_and_end_on(a.get_center(), u*r)
+
+        vec.add_updater(vec_updater)
+        for i in range(len(points)):
+            a, b = points[i], points[(i+1) % len(points)]
+            t.set_value(0)
+            line = Line(color=COL1)
+            self.add(line)
+            self.play(t.animate.set_value(1), rate_func=smoothstep, run_time=.7)
+        vec.clear_updaters()
+        polygon = Polygon(*[point.get_center() for point in points],
+                          stroke_opacity=0, fill_color=COL1, fill_opacity=.5).set_z_index(-1)
+        self.play(FadeIn(polygon), Unwrite(vec))
+        self.remove(result2)
+        self.add(result1)
+        self.wait()
+
+    def fifth_scene(self):

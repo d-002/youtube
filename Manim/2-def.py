@@ -134,7 +134,7 @@ class Main(Scene):
 
         self.play(FadeIn(polygons))
 
-        point = Dot((-2, -1, 0), radius=.2, color=FG)
+        point = Dot((-2, -1, 0), radius=.15, color=FG)
         self.play(Write(point))
         self.wait()
 

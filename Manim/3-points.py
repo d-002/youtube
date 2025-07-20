@@ -376,3 +376,40 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.wait()
 
     def fifth_scene(self):
+        bounds = get_bounds(self.camera, 1)
+        top, left, w, h = bounds.top, bounds.left, bounds.w, bounds.h
+        bounds = Bounds(left, top*3, w, h*3)
+        A, B, C, D = cells = [Cell(v2(-w*.15, 0)), Cell(v2(w*.15, 0)), Cell(v2(0, h*.9)), Cell(v2(0, -h*.9))]
+        col1 = lambda t: COL2 + (COL1-COL2)*t
+        col2 = COL4
+
+        dots = VGroup(Dot((u.x, u.y, 0), radius=.15, color=FG) for u in [A.pos, B.pos])
+
+        def updater(_):
+            y = h*.9 * (1-t.get_value()*.999)
+            cells[2].pos.y = y
+            cells[3].pos.y = -y
+
+            for i, polygon in make_polygons(options, bounds, cells, False):
+                if i < 2:
+                    col = col1(t.get_value())
+                else:
+                    col = col2
+
+                polygons[i].set_points_as_corners([(u.x, u.y, 0) for u in polygon])
+                polygons[i].set_color(col)
+                polygons[i].set_stroke(color=FG)
+
+        t = ValueTracker(0)
+        dummy = [(-1, 0, 0), (1, 0, 0), (0, 1.41, 0)]
+
+        polygons = VGroup(Polygon(*dummy, fill_opacity=.5) for _ in range(4))
+        updater(None)
+        self.play(FadeIn(polygons), Write(dots))
+        polygons.add_updater(updater)
+
+        self.play(t.animate.set_value(1), run_time=4)
+        polygons.clear_updaters()
+
+        self.play(FadeOut(polygons), FadeOut(dots), run_time=.5)
+        self.wait()

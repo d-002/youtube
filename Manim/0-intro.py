@@ -36,17 +36,17 @@ class VoronoiAnim:
 
         index = 0
         for i, points_raw in polygons:
-            dots = [(u.x, u.y, 0) for u in points_raw]
+            points = [(u.x, u.y, 0) for u in points_raw]
 
             if index >= len(self.polygons):
                 raise ValueError('Not enough polygons in VoronoiAnim buffer')
             polygon = self.polygons[index]
 
             # hard-code hide polygon if too small
-            if len(dots) < 5:
+            if len(points) < 5:
                 polygon.set_opacity(0)
             else:
-                polygon.set_points_as_corners(dots)
+                polygon.set_points_as_corners(points)
                 polygon.set_opacity(1) # fallback
                 self.style_polygon(polygon, self.colors[i])
 

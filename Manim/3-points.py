@@ -353,6 +353,7 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
             circle = Circle(radius=.05, color=COL1).move_to(point)
             self.add(circle)
             self.play(circle.animate.scale(10).set_opacity(0), run_time=.5)
+            self.remove(circle)
         self.wait()
 
         def vec_updater(m):

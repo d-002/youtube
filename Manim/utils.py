@@ -48,7 +48,7 @@ def make_polygons_and_dots(cells, bounds, colors, theme=None):
     otherwise, use theme as a function to choose a color in colors, and return
     polygons, dots, and a list of colors"""
 
-    polygons = make_polygons(options, bounds, cells, False)
+    polygons = make_polygons(options, bounds, cells)
     polygons = VGroup(Polygon(*[(u.x, u.y, 0) for u in polygon]) for _, polygon in polygons)
     dots = VGroup(Dot((cell.pos.x, cell.pos.y, 0)).set_z_index(1) for cell in cells)
 
@@ -112,4 +112,4 @@ def add_polygons_margin(dots, polygons, margin):
 
         polygon.points = np.array(points_l)
 
-options = Options(segments_density=10, divide_lines=True)
+options = Options(segments_density=10, divide_lines=True, complete_polygons=False)

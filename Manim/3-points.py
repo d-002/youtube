@@ -19,10 +19,14 @@ class Main(Scene):
         MathTex.set_default(color=FG, stroke_color=FG, font_size=32)
         self.camera.background_color = BG
 
-        #self.first_scene()
-        #self.second_scene()
-        #self.third_scene()
-        #self.fourth_scene()
+        self.first_scene()
+        self.clear()
+        self.second_scene()
+        self.clear()
+        self.third_scene()
+        self.clear()
+        self.fourth_scene()
+        self.clear()
         self.fifth_scene()
 
     def first_scene(self):
@@ -390,7 +394,7 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
             cells[2].pos.y = y
             cells[3].pos.y = -y
 
-            for i, polygon in make_polygons(options, bounds, cells, False):
+            for i, polygon in make_polygons(options, bounds, cells):
                 if i < 2:
                     col = col1(t.get_value())
                 else:

@@ -10,10 +10,14 @@ class Options:
 
         param divide_lines: whether to subdivide straight portions of the
             polygons the same way, useful when using this package with Manim.
+
+        param complete_polygons: whether to make polygons start and end on the
+            same point.
         """
 
         self.segments_density = .1
         self.divide_lines = False
+        self.complete_polygons = True
 
         for option, value in kwargs.items():
             match option:
@@ -24,6 +28,9 @@ class Options:
 
                 case 'divide_lines':
                     self.divide_lines = bool(value)
+
+                case 'complete_polygons':
+                    self.complete_polygons = bool(value)
 
                 case _:
                     raise ValueError(

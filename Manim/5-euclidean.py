@@ -17,7 +17,9 @@ class Main(Scene):
         #self.clear()
         #self.third_scene()
         #self.clear()
-        self.fourth_scene()
+        #self.fourth_scene()
+        #self.clear()
+        self.fifth_scene()
 
     def first_scene(self):
         svg = SVGMobject('resources/pythagoras.svg').scale_to_fit_height(6)
@@ -189,4 +191,25 @@ two points\"""", color=FG, font='Z003', font_size=48).shift(3*LEFT)
         self.wait()
 
     def fourth_scene(self):
+        theorem1 = MathTex('a^2', '+', 'b^2', '=', 'c^2', color=FG)
+        self.play(Write(theorem1))
+        self.wait()
+        theorem2 = MathTex('a', '+', 'b', '=', 'c', color=FG)
+        self.play(ReplacementTransform(theorem1, theorem2))
+        self.wait()
+
+        title = VGroup(
+                Text('Euclidean distance', font_size=36, weight=BOLD).shift(3*LEFT+2*UP),
+                Text('Manhattan distance', font_size=36, weight=BOLD).shift(3*RIGHT+2*UP))
+        theorem3 = MathTex('a^2', '+', 'b^2', '=', 'c^2').shift(3*LEFT+DOWN)
+        theorem4 = MathTex(r'\lvert a \rvert', '+', r'\lvert b \rvert', '=', r'\lvert c \rvert').shift(3*RIGHT+DOWN)
+        self.add(theorem3)
+        self.play(FadeIn(theorem3),
+                  ReplacementTransform(theorem2, theorem4),
+                  FadeIn(title))
+        self.wait()
+        self.play(FadeOut(theorem3, theorem4, title))
+        self.wait()
+
+    def fifth_scene(self):
         pass

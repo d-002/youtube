@@ -7,6 +7,9 @@ from texx import *
 import numpy as np
 
 from fast_voronoi import *
+from fast_voronoi.neighbors import is_neighbor
+from fast_voronoi.intersections import cells_intersections
+from fast_voronoi.polygons import make_polygons
 
 class Main(Scene):
     def construct(self):
@@ -396,4 +399,56 @@ class Main(Scene):
         self.play(FadeOut(title, u15, circle))
 
     def third_scene(self):
-        pass
+        bounds = get_bounds(self.camera, 1)
+        np.random.seed(6)
+        cells = [Cell(v2(np.random.uniform(bounds.left+1, bounds.right-1),
+                         np.random.uniform(bounds.top+1, bounds.bottom-1)),
+                      np.random.uniform()*3+2)
+                 for _ in range(50)]
+        polygons, dots, _ = make_polygons_and_dots(
+                cells, bounds, THEME1, theme_func_gradient)
+
+        for polygon in polygons:
+            polygon.set_stroke(opacity=0)
+
+        neighbors = [[] for _ in range(len(cells))]
+        for i in range(len(cells)):
+            for j in range(len(cells)):
+                if i == j:
+                    continue
+
+                if is_neighbor(bounds, cells, i, j):
+                    neighbors[i].append(j)
+
+        intersections = cells_intersections(bounds, cells, neighbors)
+        vertices = VGroup(Dot((inter.pos.x, inter.pos.y, 0), color=FG, radius=.05)
+                          for inter in intersections).set_z_index(1)
+
+        self.play(FadeIn(polygons))
+        self.wait()
+
+        edges = VGroup(Polygon(*polygon.points, fill_opacity=0, stroke_color=FG)
+                       for polygon in polygons)
+
+        self.play(AnimationGroup(Write(vertices), Write(edges), lag_ratio=.5),
+                  rate_func=linear, run_time=5)
+
+        everything = VGroup(polygons, vertices, edges)
+        scale = 3
+        shift = 2*RIGHT
+        # not using FadeOut to avoid the animation being discarded by the group
+        self.play(vertices.animate.set_opacity(0))
+        self.play(everything.animate.scale(scale).shift(shift))
+        self.wait()
+
+        self.play(FadeOut(polygons))
+        self.wait()
+
+        vertices.set_opacity(1)
+        self.play(Write(vertices))
+        self.wait()
+
+        polygons.set_opacity(0)
+        self.play(everything.animate.shift(-shift).scale(1/scale))
+        self.play(polygons.animate.set_opacity(1), FadeOut(vertices))
+        self.wait()

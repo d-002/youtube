@@ -5,7 +5,6 @@ from utils import *
 
 from fast_voronoi import *
 
-from math import sin, tau
 import numpy as np
 
 class Main(Scene):
@@ -13,16 +12,16 @@ class Main(Scene):
         Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
-        #self.first_scene()
-        #self.clear()
-        #self.second_scene()
-        #self.clear()
-        #self.third_scene()
-        #self.clear()
-        #self.fourth_scene()
-        #self.clear()
-        #self.fifth_scene()
-        #self.clear()
+        self.first_scene()
+        self.clear()
+        self.second_scene()
+        self.clear()
+        self.third_scene()
+        self.clear()
+        self.fourth_scene()
+        self.clear()
+        self.fifth_scene()
+        self.clear()
         self.sixth_scene()
 
     def first_scene(self):
@@ -30,7 +29,7 @@ class Main(Scene):
         img = ImageMobject('resources/pythagoras.jpg').scale_to_fit_height(6)
 
         self.play(Create(svg).set_run_time(3).set_rate_func(linear))
-        alt = Text('Pythagoras', font_size=20, color=FG).next_to(img, DOWN).shift(3*LEFT)
+        alt = Text('Pythagoras', font_size=20).next_to(img, DOWN).shift(3*LEFT)
         self.play(FadeIn(img),
                   Write(alt),
                   svg.animate.shift(3*LEFT),
@@ -58,26 +57,28 @@ class Main(Scene):
                           MathTex('a^2', font_size=48, color=COL1),
                           MathTex('+', font_size=48, color=FG),
                           MathTex('b^2', font_size=48, color=COL2))
-        equation.arrange(RIGHT, buff=.2).next_to(triangle, DOWN)
+        equation.arrange(RIGHT, buff=.2).next_to(triangle, 2*DOWN)
         self.play(Write(equation[0]))
         self.wait()
         self.play(Write(equation[1:]), run_time=2)
+        self.wait()
 
         self.play(svg.animate.shift(10*LEFT),
                   img.animate.shift(10*LEFT),
+                  alt.animate.shift(10*LEFT),
                   triangle.animate.shift(8*RIGHT),
                   equation.animate.shift(8*RIGHT))
         self.wait()
 
     def squiggly_line(self, a, b):
-        f = lambda t: np.reshape((t, sin(tau*t)*.2, 0), (3, 1))
+        f = lambda t: np.reshape((t, np.sin(2*np.pi*t)*.2, 0), (3, 1))
         u = b-a
         start = np.reshape(a, (3, 1))
         mat = np.matrix([[u[0], -u[1], 0],
                          [u[1],  u[0], 0],
                          [0,     0,    1]])
 
-        return [np.array((mat*f(t) + start).T)[0] for t in np.arange(0, 1.001, .01)]
+        return [np.array((mat*f(t) + start).T)[0] for t in np.arange(0, 1+1e-6, .01)]
 
     def second_scene(self):
         a, b = np.array([-2, -1, 0]), np.array([2, 2, 0])
@@ -89,7 +90,7 @@ class Main(Scene):
         triangle = VGroup(Line(a, b, color=COL3, stroke_width=8),
                           Line(a, c, color=COL2, stroke_width=8),
                           Line(b, c, color=COL1, stroke_width=8),
-                          Dot(c, radius=.08, color=FG))
+                          Dot(c, radius=.08, color=FG).set_z_index(1))
         triangle += RightAngle(triangle[1], triangle[2], color=FG)
 
         self.play(Write(triangle[0]))
@@ -159,7 +160,7 @@ class Main(Scene):
 
         self.play(Create(svg).set_run_time(5).set_rate_func(linear))
         self.wait()
-        alt = Text('Euclid', font_size=20, color=FG).next_to(img, DOWN).shift(3*RIGHT)
+        alt = Text('Euclid', font_size=20).next_to(img, DOWN).shift(3*RIGHT)
         self.play(FadeIn(img),
                   Write(alt),
                   svg.animate.shift(3*RIGHT),
@@ -185,13 +186,19 @@ two points\"""", color=FG, font='Z003', font_size=48).shift(3*LEFT)
         self.wait()
 
         quote = Text("""
-\"NO straight
+\"No straight
 line segment
 can be drawn
 joining any
 two points\"""", color=FG, font='Z003', font_size=48).shift(3*LEFT)
         self.play(FadeOut(space))
         self.play(Write(quote))
+        self.wait()
+
+        self.play(quote.animate.shift(10*LEFT),
+                  svg.animate.shift(10*RIGHT),
+                  img.animate.shift(10*RIGHT),
+                  alt.animate.shift(10*RIGHT))
         self.wait()
 
     def fourth_scene(self):
@@ -236,6 +243,8 @@ two points\"""", color=FG, font='Z003', font_size=48).shift(3*LEFT)
         self.play(FadeOut(b, d))
 
     def sixth_scene(self):
+        self.wait()
+
         bounds = get_bounds(self.camera, 1)
         scale = 6
         left, top, w, h = bounds.left*scale, bounds.top, bounds.w*scale, bounds.h

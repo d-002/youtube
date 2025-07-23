@@ -23,26 +23,25 @@ class Main(Scene):
     def first_scene(self):
         svg = SVGMobject('resources/voronoy.svg').scale(2.5).shift(.3*UP)
         img = ImageMobject('resources/voronoy.png').scale(2.5/4).shift(.3*UP)
-        voronoy = Text('Georgy Feodosevich Voronyi',
-                       font_size=20, stroke_color=FG).next_to(img, DOWN)
+        alt = Text('Georgy Feodosevich Voronyi', font_size=20).next_to(img, DOWN)
 
         example = SVGMobject('resources/diagram_example.svg').shift(20*RIGHT).scale(3)
 
         self.play(
             Succession(Wait(1), Create(svg).set_run_time(5).set_rate_func(linear)),
-            Write(voronoy.set_run_time(1))
+            Write(alt.set_run_time(1))
         )
         self.play(
             FadeIn(img),
             # can't use group here
-            map(lambda m: m.animate.shift(4*LEFT), (svg, img, voronoy)),
+            map(lambda m: m.animate.shift(4*LEFT), (svg, img, alt)),
             example.animate.shift(17*LEFT), run_time=2)
         self.wait()
 
         self.play(map(
-            lambda m: m.animate.shift(10*UP), (svg, img, voronoy, example)),
+            lambda m: m.animate.shift(10*UP), (svg, img, alt, example)),
                   run_time=2)
-        self.remove(svg, img, voronoy, example)
+        self.remove(svg, img, alt, example)
 
     def second_scene(self, cells):
         bounds = get_bounds(self.camera, 1)

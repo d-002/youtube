@@ -3,6 +3,8 @@ from manim import *
 from theme import *
 from utils import *
 
+from fast_voronoi import *
+
 from math import sin, tau
 import numpy as np
 
@@ -19,7 +21,9 @@ class Main(Scene):
         #self.clear()
         #self.fourth_scene()
         #self.clear()
-        self.fifth_scene()
+        #self.fifth_scene()
+        #self.clear()
+        self.sixth_scene()
 
     def first_scene(self):
         svg = SVGMobject('resources/pythagoras.svg').scale_to_fit_height(6)
@@ -212,4 +216,39 @@ two points\"""", color=FG, font='Z003', font_size=48).shift(3*LEFT)
         self.wait()
 
     def fifth_scene(self):
-        pass
+        a = MathTex(r'\text{Cell}(x, y', ')', font_size=56, color=FG)
+        self.play(FadeIn(a))
+        self.wait()
+
+        b = MathTex(r'\text{Cell}(x, y', ', weight', ')', font_size=56, color=FG)
+        self.play(ReplacementTransform(a, b))
+        self.wait()
+
+        c = MathTex('dist =', 'dist_{euclidean}', color=FG)
+        self.play(b.animate.shift(2*UP))
+        self.play(FadeIn(c))
+        self.wait()
+
+        d = MathTex('dist =', r'weight \times', 'dist_{euclidean}', color=FG)
+        self.play(ReplacementTransform(c, d))
+        self.wait()
+
+        self.play(FadeOut(b, d))
+
+    def sixth_scene(self):
+        bounds = get_bounds(self.camera, 1)
+        scale = 6
+        left, top, w, h = bounds.left*scale, bounds.top, bounds.w*scale, bounds.h
+        bounds = Bounds(left, top, w, h)
+
+        np.random.seed(0)
+        cells = [Cell(v2(np.random.random()*w+left, np.random.random()*h+top),
+                      np.random.random()*3 + 2) for _ in range(100)]
+
+        polygons, _, _ = make_polygons_and_dots(
+                cells, bounds, THEME2, theme_func_gradient)
+        for polygon in polygons:
+            polygon.set_stroke_color(BG)
+        polygons.shift(w*(scale-1)/scale/2*RIGHT)
+
+        self.play(polygons.animate.shift(w*(scale-1)/scale*LEFT), rate_func=linear, run_time=20)

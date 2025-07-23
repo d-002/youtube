@@ -49,11 +49,12 @@ def make_polygons_and_dots(cells, bounds, colors, theme=None):
     polygons, dots, and a list of colors"""
 
     polygons = make_polygons(options, bounds, cells)
+    indices = [i for i, _ in polygons]
     polygons = VGroup(Polygon(*[(u.x, u.y, 0) for u in polygon]) for _, polygon in polygons)
     dots = VGroup(Dot((cell.pos.x, cell.pos.y, 0)).set_z_index(1) for cell in cells)
 
     new_colors = []
-    for i, polygon in enumerate(polygons):
+    for i, polygon in zip(indices, polygons):
         if theme is None:
             color = colors[i]
         else:

@@ -24,7 +24,7 @@ class Main(Scene):
         cells = [Cell(v2(np.random.uniform(bounds.left+1, bounds.right-1),
                          np.random.uniform(bounds.top+1, bounds.bottom-1)))
                  for _ in range(50)]
-        polygons, dots, colors = make_polygons_and_dots(
+        polygons, dots, _ = make_polygons_and_dots(
                 cells, bounds, THEME1, theme_func_gradient)
 
         for polygon in polygons:
@@ -129,7 +129,7 @@ class Main(Scene):
                          np.random.uniform(bounds.top+1, bounds.bottom-1)))
                  for _ in range(3)]
         A, B, C = cells
-        polygons, dots, colors = make_polygons_and_dots(
+        polygons, dots, _ = make_polygons_and_dots(
                 cells, bounds, THEME3, theme_func_gradient)
 
         self.play(FadeIn(polygons))

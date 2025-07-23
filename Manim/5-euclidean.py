@@ -3,6 +3,9 @@ from manim import *
 from theme import *
 from utils import *
 
+from math import sin, tau
+import numpy as np
+
 class Main(Scene):
     def construct(self):
         Text.set_default(color=FG, stroke_color=FG)
@@ -11,6 +14,8 @@ class Main(Scene):
         #self.first_scene()
         self.clear()
         self.second_scene()
+        self.clear()
+        self.third_scene()
 
     def first_scene(self):
         svg = SVGMobject('resources/pythagoras.svg').scale(2.5)
@@ -35,25 +40,105 @@ class Main(Scene):
                            for char, color, offset, (a, b)
                            in zip('abc', colors, offsets, edges))
 
-        self.play(Write(triangle))
+        self.play(Write(triangle), run_time=2)
         self.wait()
 
-        tex = VGroup(MathTex('c^2', font_size=48, color=COL3),
-                     MathTex('=', font_size=48, color=FG),
-                     MathTex('a^2', font_size=48, color=COL1),
-                     MathTex('+', font_size=48, color=FG),
-                     MathTex('b^2', font_size=48, color=COL2))
-        tex.arrange(RIGHT, buff=.2).move_to(triangle, DOWN).shift(DOWN)
-        self.play(Write(tex[0]))
+        equation = VGroup(MathTex('c^2', font_size=48, color=COL3),
+                          MathTex('=', font_size=48, color=FG),
+                          MathTex('a^2', font_size=48, color=COL1),
+                          MathTex('+', font_size=48, color=FG),
+                          MathTex('b^2', font_size=48, color=COL2))
+        equation.arrange(RIGHT, buff=.2).next_to(triangle, DOWN)
+        self.play(Write(equation[0]))
         self.wait()
-        self.play(Write(tex[1:]), run_time=2)
+        self.play(Write(equation[1:]), run_time=2)
 
         self.play(svg.animate.shift(10*LEFT),
                   img.animate.shift(10*LEFT),
                   triangle.animate.shift(8*RIGHT),
-                  tex.animate.shift(6*RIGHT))
+                  equation.animate.shift(8*RIGHT))
         self.wait()
 
     def second_scene(self):
-        A, B = Dot((-2, -1, 0), radius=.15, color=FG), Dot((2, 2, 0), radius=.15, color=FG)
-        self.play(Write(A), Write(B))
+        a, b = np.array([-2, -1, 0]), np.array([2, 2, 0])
+        c = np.array([b[0], a[1], 0])
+        A = Dot(a, radius=.15, color=FG).set_z_index(1)
+        B = Dot(b, radius=.15, color=FG).set_z_index(1)
+        self.play(AnimationGroup(Write(A), Write(B), lag_ratio=.2), run_time=1.2)
+
+        triangle = VGroup(Line(a, b, color=COL3, stroke_width=8),
+                          Line(a, c, color=COL2, stroke_width=8),
+                          Line(b, c, color=COL1, stroke_width=8),
+                          Dot(c, radius=.08, color=FG))
+        triangle += RightAngle(triangle[1], triangle[2], color=FG)
+
+        self.play(Write(triangle[0]))
+        self.wait()
+        self.play(Write(triangle[1:]), lag_ratio=.5)
+        self.wait()
+
+        origin_offset = (-3, -2, 0)
+        plane = NumberPlane(x_range=(-4.111111111111111, 10.111111111111111, 1),
+                            y_range=(-2.0, 6.0, 1),
+                            **number_plane_config)
+        self.play(FadeIn(plane))
+        self.wait()
+
+        for m, shift, text, offset in ((triangle[1], -a, '4 units', DOWN),
+                                       (triangle[2], -c, '3 units', LEFT)):
+            shift += origin_offset
+            color = m.get_color()
+            text = Text(text, color=color, stroke_color=color)
+
+            self.play(m.animate.shift(shift), run_time=.5)
+            text.next_to(m, offset)
+            self.play(FadeIn(text), run_time=.5)
+            self.wait(.2)
+            self.play(FadeOut(text), run_time=.5)
+            self.play(m.animate.shift(-shift), run_time=.5)
+
+        self.wait()
+        self.play(FadeOut(plane))
+
+        Tex.set_default(font_size=48, color=FG, buff=.2)
+        m = MathTex('c^2', '=', 'a^2', '+', 'b^2').to_corner(UL).shift(DR)
+        self.play(Write(m))
+        n = MathTex('c^2', '=', '4^2', '+', 'b^2').move_to(m)
+        self.play(ReplacementTransform(m, n))
+        o = MathTex('c^2', '=', '4^2', '+', '3^2').move_to(n)
+        self.play(ReplacementTransform(n, o))
+        p = MathTex('c^2', '=', '16', '+', '9').move_to(o)
+        self.play(ReplacementTransform(o, p))
+        q = MathTex('c^2', '=', '25').move_to(p)
+        self.play(TransformMatchingTex(p, q))
+        r = MathTex('c', '=', '5').move_to(q)
+        self.play(ReplacementTransform(q, r))
+        s = MathTex('5',  font_size=64, color=COL3)
+        s.move_to((a+b)/2 + UL*.4)
+        self.play(ReplacementTransform(r, s))
+        self.wait()
+
+        self.play(FadeOut(triangle[1:], s))
+        self.wait()
+
+        f = lambda t: np.reshape((t, sin(tau*t)*.2, 0), (3, 1))
+        u = b-a
+        start = np.reshape(a, (3, 1))
+        mat = np.matrix([[u[0], -u[1], 0],
+                         [u[1],  u[0], 0],
+                         [0,     0,    1]])
+
+        points = [np.array((mat*f(t) + start).T)[0] for t in np.arange(0, 1.001, .01)]
+
+        weird_line = VMobject(color=COL3, stroke_width=8)
+        weird_line.set_points_as_corners(points)
+        self.play(ReplacementTransform(triangle[0], weird_line))
+        self.wait(.5)
+        straight_line = Line(a, b, color=COL3, stroke_width=8)
+        self.play(ReplacementTransform(weird_line, straight_line))
+        self.wait()
+
+        self.play(FadeOut(straight_line, A, B))
+
+    def third_scene(self):
+        pass

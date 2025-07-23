@@ -320,7 +320,7 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.add(result1)
         self.wait()
 
-        plane = NumberPlane().add_coordinates().set_z_index(-1)
+        plane = NumberPlane(**number_plane_config).add_coordinates().set_z_index(-1)
         self.camera.background_color = BG
         self.add(bg1)
         self.play(FadeIn(plane),

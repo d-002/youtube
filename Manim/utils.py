@@ -5,7 +5,7 @@ import numpy as np
 from fast_voronoi import Bounds, Options
 from fast_voronoi.polygons import make_polygons
 
-from theme import FG
+from theme import FG, COL3
 
 def get_bounds(camera, margin):
     cx, cy = camera.frame_center[:2]
@@ -113,3 +113,14 @@ def add_polygons_margin(dots, polygons, margin):
         polygon.points = np.array(points_l)
 
 options = Options(segments_density=10, divide_lines=True, complete_polygons=False)
+
+number_plane_config = {
+        'axis_config': {
+            'stroke_color': FG,
+            'stroke_opacity': 0.6
+            },
+        'background_line_style': {
+            'stroke_color': COL3,
+            'stroke_opacity': 0.4
+            }
+        }

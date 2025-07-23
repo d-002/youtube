@@ -12,17 +12,21 @@ class Main(Scene):
         self.camera.background_color = BG
 
         #self.first_scene()
-        self.clear()
-        self.second_scene()
-        self.clear()
-        self.third_scene()
+        #self.clear()
+        #self.second_scene()
+        #self.clear()
+        #self.third_scene()
+        #self.clear()
+        self.fourth_scene()
 
     def first_scene(self):
-        svg = SVGMobject('resources/pythagoras.svg').scale(2.5)
-        img = ImageMobject('resources/pythagoras.jpg')
+        svg = SVGMobject('resources/pythagoras.svg').scale_to_fit_height(6)
+        img = ImageMobject('resources/pythagoras.jpg').scale_to_fit_height(6)
 
         self.play(Create(svg).set_run_time(3).set_rate_func(linear))
+        alt = Text('Pythagoras', font_size=20, color=FG).next_to(img, DOWN).shift(3*LEFT)
         self.play(FadeIn(img),
+                  Write(alt),
                   svg.animate.shift(3*LEFT),
                   img.animate.shift(3*LEFT))
 
@@ -58,6 +62,16 @@ class Main(Scene):
                   triangle.animate.shift(8*RIGHT),
                   equation.animate.shift(8*RIGHT))
         self.wait()
+
+    def squiggly_line(self, a, b):
+        f = lambda t: np.reshape((t, sin(tau*t)*.2, 0), (3, 1))
+        u = b-a
+        start = np.reshape(a, (3, 1))
+        mat = np.matrix([[u[0], -u[1], 0],
+                         [u[1],  u[0], 0],
+                         [0,     0,    1]])
+
+        return [np.array((mat*f(t) + start).T)[0] for t in np.arange(0, 1.001, .01)]
 
     def second_scene(self):
         a, b = np.array([-2, -1, 0]), np.array([2, 2, 0])
@@ -121,14 +135,7 @@ class Main(Scene):
         self.play(FadeOut(triangle[1:], s))
         self.wait()
 
-        f = lambda t: np.reshape((t, sin(tau*t)*.2, 0), (3, 1))
-        u = b-a
-        start = np.reshape(a, (3, 1))
-        mat = np.matrix([[u[0], -u[1], 0],
-                         [u[1],  u[0], 0],
-                         [0,     0,    1]])
-
-        points = [np.array((mat*f(t) + start).T)[0] for t in np.arange(0, 1.001, .01)]
+        points = self.squiggly_line(a, b)
 
         weird_line = VMobject(color=COL3, stroke_width=8)
         weird_line.set_points_as_corners(points)
@@ -141,4 +148,45 @@ class Main(Scene):
         self.play(FadeOut(straight_line, A, B))
 
     def third_scene(self):
+        svg = SVGMobject('resources/euclid.svg').scale_to_fit_height(6)
+        img = ImageMobject('resources/euclid.png').scale_to_fit_height(6)
+
+        self.play(Create(svg).set_run_time(5).set_rate_func(linear))
+        self.wait()
+        alt = Text('Euclid', font_size=20, color=FG).next_to(img, DOWN).shift(3*RIGHT)
+        self.play(FadeIn(img),
+                  Write(alt),
+                  svg.animate.shift(3*RIGHT),
+                  img.animate.shift(3*RIGHT))
+        self.wait()
+        postulates = Text("Euclid's Postulates", font_size=48).shift(3*LEFT)
+        self.play(FadeIn(postulates))
+        self.wait()
+
+        quote = Text("""
+\"A straight
+line segment
+can be drawn
+joining any
+two points\"""", color=FG, font='Z003', font_size=48).shift(3*LEFT)
+        self.play(FadeOut(postulates), run_time=.7)
+        self.play(Write(quote))
+        self.wait()
+
+        self.play(FadeOut(quote))
+        space = Text('Euclidean space', font_size=48).shift(3*LEFT)
+        self.play(FadeIn(space))
+        self.wait()
+
+        quote = Text("""
+\"NO straight
+line segment
+can be drawn
+joining any
+two points\"""", color=FG, font='Z003', font_size=48).shift(3*LEFT)
+        self.play(FadeOut(space))
+        self.play(Write(quote))
+        self.wait()
+
+    def fourth_scene(self):
         pass

@@ -11,6 +11,7 @@ from fast_voronoi.polygons import make_polygons
 
 from theme import *
 from utils import *
+from texx import Texx
 
 class Main(Scene):
     def construct(self):
@@ -138,54 +139,10 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.play(FadeOut(demo1), FadeOut(demo2))
 
     def third_scene(self):
-        # config
-        template = TexTemplate(preamble=r"\usepackage{xcolor}")
-        t2c = {'x_A': COL1, 'y_A': COL1, 'x_B': COL2, 'y_B': COL2, 'x_C': COL3, 'y_C': COL3, 'x_P': COL4, 'y_P': COL4, 'A': COL1, 'B': COL2, 'C': COL3, 'P': COL4, 'x_u': COL5, 'y_u': COL5, 'x_v': COL6, 'y_v': COL6, 'u': COL5, 'v': COL6, 'x_M': COL5, 'y_M': COL5, 'x_N': COL6, 'y_N': COL6, 'M': COL5, 'N': COL6}
-        texcolors = {}
-        name_ord = 65
-        for col in t2c.values():
-            name = chr(name_ord)
-            name_ord += 1
-            template.add_to_preamble(r'\definecolor{'+name+'}{HTML}{'+col.to_hex()[1:]+'}')
-            texcolors[col] = name
+        t2c.update({'x_u': COL5, 'y_u': COL5, 'x_v': COL6, 'y_v': COL6, 'u': COL5, 'v': COL6, 'x_M': COL5, 'y_M': COL5, 'x_N': COL6, 'y_N': COL6, 'M': COL5, 'N': COL6})
         Tex.set_default(tex_template=template)
 
-        class Texx(Tex):
-            def __init__(self, *args, **kwargs):
-                args = [f'${arg}$' for arg in args]
-                args = self.colorize(args)
-
-                super().__init__(*args, **kwargs)
-                self.arrange(RIGHT, buff=.1)
-
-            def colorize(self, args):
-                newargs = []
-                for arg in args:
-                    newarg = ''
-
-                    L = len(arg)
-                    i = 0
-                    while i < L:
-                        found = False
-
-                        for word, col in t2c.items():
-                            l = len(word)
-
-                            if arg[i:i+l] == word:
-                                newarg += r'\textcolor{'+texcolors[col]+'}{'+word+'} '
-                                i += l
-                                found = True
-                                break
-
-                        if not found:
-                            newarg += arg[i]
-                            i += 1
-
-                    newargs.append(newarg)
-
-                return newargs
-
-        title = Tex(r'Getting the equidistant point $P$ between $A$, $B$, $C$', font_size=48).to_edge(UP)
+        title = Tex('Getting the equidistant point $P$ between $A$, $B$, $C$', font_size=48).to_edge(UP)
         self.play(FadeIn(title))
 
         section = Tex('Finding perpendicular bisectors $d_{AB}$ and $d_{AC}$').to_corner(DL)

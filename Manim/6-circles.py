@@ -138,7 +138,6 @@ class Main(Scene):
         A, B = A+DOWN, B+DOWN
         self.wait()
 
-        options = Options(segments_density=10, divide_lines=True, complete_polygons=True)
         bounds = get_bounds(self.camera, 1)
         cells = [Cell(v2(A[0], A[1]), 1), Cell(v2(B[0], B[1]), 1)]
 

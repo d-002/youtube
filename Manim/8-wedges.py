@@ -78,9 +78,8 @@ class Main(Scene):
 
         index = 1
         edges1 = get_edges(options, bounds, cells, index)
-        rand_indices = list(np.random.permutation(len(edges1)))
-        polygon = VGroup(VMobject(color=FG).set_points_as_corners(edges1[i])
-                           for i in rand_indices)
+        polygon = VGroup(VMobject(color=FG).set_points_as_corners(edge)
+                         for edge in edges1)
 
         center = polygons_mo[index].get_center()
         edges2 = deepcopy(edges1)
@@ -126,9 +125,8 @@ class Main(Scene):
         self.play(polygon.animate.arrange(RIGHT, buff=1).to_edge(UP))
         self.wait()
 
-        self.play(AnimationGroup((polygon[rand_indices.index(i)]
-                                  .animate.set_points_as_corners(edge)
-                                  for i, edge in enumerate(edges1)),
+        self.play(AnimationGroup((edge.animate.set_points_as_corners(p)
+                                  for edge, p in zip(polygon, edges1)),
                                  lag_ratio=1), run_time=.7*len(polygon))
         self.wait()
 
@@ -159,10 +157,12 @@ class Main(Scene):
                 polygons_mo[i].set_opacity(0)
 
         self.play(polygon.animate.shift(center))
+
+        t = ValueTracker(0)
+        polygons_updater(None)
         self.play(FadeIn(polygons_mo))
         self.remove(polygon)
 
-        t = ValueTracker(0)
         polygons_mo.add_updater(polygons_updater)
         self.play(t.animate.set_value(1), run_time=2)
         polygons_updater(None)

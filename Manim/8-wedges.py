@@ -56,9 +56,11 @@ class Main(Scene):
         Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
-        #self.first_scene()
-        #self.clear()
+        self.first_scene()
+        self.clear()
         self.second_scene()
+        self.clear()
+        self.third_scene()
 
     def first_scene(self):
         np.random.seed(100)
@@ -267,3 +269,51 @@ class Main(Scene):
         self.wait()
         self.play(Write(arc0))
         self.wait()
+
+    def third_scene(self):
+        bounds = get_bounds(self.camera, 1)
+        left, top, w, h = bounds.left, bounds.top, bounds.w, bounds.h
+
+        options = Options(segments_density=10, divide_lines=False)
+        bounds = Bounds(left*3, top*3, w*3, h*3)
+        np.random.seed(0)
+        cells = [Cell(v2(0, 0), 1) for _ in range(30)]
+
+        mkpos = lambda: [v2(np.random.random()*w+left, np.random.random()*h+top)
+                         for _ in range(len(cells))]
+        mkw = lambda: np.random.random(len(cells))*3+2
+        start_pos, end_pos = mkpos(), mkpos()
+        weights1, weights2 = mkw(), mkw()
+
+        dummy = [(-1, 0, 0), (1, 0, 0), (0, 1.41, 0)]
+        polygons_mo = VGroup(Polygon(*dummy, fill_opacity=1, stroke_color=FG)
+                             for _ in range(len(cells)+10))
+
+        def polygons_updater(_):
+            # update cells
+            t_ = t.get_value()
+            for cell, start, end, w1, w2 in zip(cells, start_pos, end_pos, weights1, weights2):
+                cell.pos = start + (end-start)*t_
+                cell.weight = w1 + (w2-w1)*t_
+
+            index = 0
+            for i, points_raw in make_polygons(options, bounds, cells):
+                points = [(u.x, u.y, 0) for u in points_raw]
+
+                polygon = polygons_mo[index]
+                polygon.set_points_as_corners(points)
+                color = get_color_from_t(THEME1, theme_func_gradient(bounds, cells[i]))
+                polygon.set_fill(color)
+
+                index += 1
+
+            # hide the unused polygons
+            for i, polygon in enumerate(polygons_mo):
+                polygons_mo[i].set_opacity(i < index)
+
+        self.add(polygons_mo)
+
+        t = ValueTracker(0)
+        polygons_mo.add_updater(polygons_updater)
+        self.play(t.animate.set_value(1), rate_func=linear, run_time=30)
+        polygons_mo.clear_updaters()

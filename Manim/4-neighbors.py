@@ -105,8 +105,8 @@ class Main(Scene):
                 index += 1
 
             # hide the unused polygons
-            for i in range(index, len(polygons)):
-                polygons[i].set_opacity(0)
+            for i, polygon in enumerate(polygons):
+                polygons[i].set_opacity(i < index)
 
         def dots_updater(_):
             for cell, dot in zip(cells, dots):

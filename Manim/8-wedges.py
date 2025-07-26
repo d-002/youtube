@@ -6,6 +6,7 @@ from theme import *
 from utils import *
 
 from fast_voronoi import *
+from fast_voronoi.utils import get_circle, circle_inter
 from fast_voronoi.polygons import Cache, build_pairs, make_polygons
 
 import numpy as np
@@ -55,8 +56,8 @@ class Main(Scene):
         Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
-        self.first_scene()
-        self.clear()
+        #self.first_scene()
+        #self.clear()
         self.second_scene()
 
     def first_scene(self):
@@ -198,4 +199,71 @@ class Main(Scene):
         self.play(FadeOut(polygons_mo))
 
     def second_scene(self):
-        pass
+        cells = [Cell(v2(-3, 0), 1.5), Cell(v2(2, 0), 3), Cell(v2(7, 0), 1)]
+
+        bounds = get_bounds(self.camera, 1)
+        polygons = make_polygons(options, bounds, cells)
+        polygons.sort(key=lambda pair: pair[0])
+        polygons = VGroup(Polygon(*[(u.x, u.y, 0) for u in polygon],
+                                     fill_opacity=0, stroke_color=FG)
+                             for _, polygon in polygons)
+        dots = VGroup(Dot((cell.pos.x, cell.pos.y, 0)) for cell in cells)
+
+        cab = get_circle(cells[0], cells[1])
+        cac = get_circle(cells[0], cells[2])
+        i0, i1 = circle_inter(cab, cac)
+
+        center = (cab.c.x, cab.c.y, 0)
+        i0, i1 = (i0.x, i0.y, 0), (i1.x, i1.y, 0)
+
+        circle = Circle(radius=np.sqrt(cab.r2), color=FG).move_to(center)
+        A = Dot(radius=.15, color=COL1).move_to(i0).set_z_index(1)
+        B = Dot(radius=.15, color=COL1).move_to(i1).set_z_index(1)
+        self.play(Write(circle), Write(A), Write(B))
+        self.wait()
+
+        diff0, diff1 = np.array(i0)-center, np.array(i1)-center
+        angle = abs(np.atan2(diff0[1], diff0[0]) - np.atan2(diff1[1], diff1[0]))
+        if angle > np.pi:
+            angle -= np.pi
+        arc0 = ArcBetweenPoints(diff1, diff0, angle=np.pi-angle, color=COL1, stroke_width=10).shift(center)
+        arc1 = ArcBetweenPoints(diff0, diff1, angle=np.pi+angle, color=COL1, stroke_width=10).shift(center)
+        self.play(circle.animate.set_stroke(opacity=.2))
+        self.play(Write(arc0))
+        self.wait()
+        self.play(AnimationGroup(FadeOut(arc0), Write(arc1), lag_ratio=.5),
+                  run_time=1.5)
+        self.wait()
+        self.play(FadeOut(arc1))
+        self.wait()
+
+        colors = [COL1, COL2, TRANSPARENT]
+        for color, polygon in zip(colors, polygons):
+            polygon.set_fill(color=color, opacity=.5)
+
+        self.play(Write(dots[:2]),
+                  FadeIn(polygons),
+                  A.animate.set_color(FG),
+                  B.animate.set_color(FG))
+        self.wait()
+
+        self.play(polygons.animate.set_stroke(opacity=.2))
+        arc0.set_color(FG).set_z_index(1)
+        arc1.set_color(FG).set_z_index(1)
+        self.play(Write(arc0))
+        self.wait()
+        self.play(AnimationGroup(FadeOut(arc0), Write(arc1), lag_ratio=.5),
+                  run_time=1.5)
+        self.wait()
+        self.play(FadeOut(arc1),
+                  polygons.animate.set_stroke(opacity=0),
+                  FadeOut(circle))
+        self.wait()
+
+        arc0.set_stroke_width(4)
+        arc1.set_stroke_width(4)
+        segment = Line(dots[0], dots[1], color=FG)
+        self.play(Write(segment))
+        self.wait()
+        self.play(Write(arc0))
+        self.wait()

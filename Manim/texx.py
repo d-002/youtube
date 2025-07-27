@@ -1,16 +1,23 @@
 from theme import *
 from manim import *
 
-template = TexTemplate(preamble=r"\usepackage{xcolor}\usepackage{amsmath}")
-
 t2c = {'x_A': COL1, 'y_A': COL1, 'x_B': COL2, 'y_B': COL2, 'x_C': COL3, 'y_C': COL3, 'x_P': COL4, 'y_P': COL4, 'A': COL1, 'B': COL2, 'C': COL3, 'P': COL4}
-texcolors = {}
-name_ord = 65
-for col in t2c.values():
-    name = chr(name_ord)
-    name_ord += 1
-    template.add_to_preamble(r'\definecolor{'+name+'}{HTML}{'+col.to_hex()[1:]+'}')
-    texcolors[col] = name
+
+def set_template():
+    global template, texcolors
+
+    template = TexTemplate(preamble=r'\usepackage{xcolor}\usepackage{amsmath}')
+    texcolors = {}
+    name_ord = 65
+
+    for col in t2c.values():
+        name = chr(name_ord)
+        name_ord += 1
+        template.add_to_preamble('\\definecolor{'+name+'}{HTML}{'+col.to_hex()[1:]+'}')
+        texcolors[col] = name
+
+    return template # for use from other files
+set_template()
 
 class Texx(Tex):
     def __init__(self, *args, **kwargs):

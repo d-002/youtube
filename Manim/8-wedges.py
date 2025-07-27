@@ -262,8 +262,8 @@ class Main(Scene):
                   FadeOut(circle))
         self.wait()
 
-        arc0.set_stroke_width(4)
-        arc1.set_stroke_width(4)
+        arc0.set_stroke(width=4)
+        arc1.set_stroke(width=4)
         segment = Line(dots[0], dots[1], color=FG)
         self.play(Write(segment))
         self.wait()

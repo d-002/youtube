@@ -257,7 +257,7 @@ two points\"""", color=FG, font='Z003', font_size=48).shift(3*LEFT)
         polygons, _, _ = make_polygons_and_dots(
                 cells, bounds, THEME2, theme_func_gradient)
         for polygon in polygons:
-            polygon.set_stroke_color(BG)
+            polygon.set_stroke(BG)
         polygons.shift(w*(scale-1)/scale/2*RIGHT)
 
         self.play(polygons.animate.shift(w*(scale-1)/scale*LEFT), rate_func=linear, run_time=20)

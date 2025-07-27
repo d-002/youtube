@@ -11,7 +11,7 @@ from fast_voronoi.polygons import make_polygons
 
 from theme import *
 from utils import *
-from texx import Texx
+from texx import *
 
 class Main(Scene):
     def construct(self):
@@ -140,6 +140,7 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
 
     def third_scene(self):
         t2c.update({'x_u': COL5, 'y_u': COL5, 'x_v': COL6, 'y_v': COL6, 'u': COL5, 'v': COL6, 'x_M': COL5, 'y_M': COL5, 'x_N': COL6, 'y_N': COL6, 'M': COL5, 'N': COL6})
+        template = set_template()
         Tex.set_default(tex_template=template)
 
         title = Tex('Getting the equidistant point $P$ between $A$, $B$, $C$', font_size=48).to_edge(UP)
@@ -153,8 +154,10 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         c = Texx(r'd_{AB} =', 'M + tu').move_to(a)
         d = Texx(r'd_{AC} =', r'N + t^\prime v').move_to(b)
         self.play(AnimationGroup(Write(a), Write(b), lag_ratio=.5))
+        self.wait(.5)
         self.play(ReplacementTransform(a, c), ReplacementTransform(b, d))
         self.play(c.animate.to_edge(LEFT).shift(UP), d.animate.to_edge(LEFT).shift(UP))
+        self.wait(.5)
 
         _section = section
         section = Tex('Finding $t$ in $P = M + t u$').to_corner(DL)
@@ -168,9 +171,11 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.play(ReplacementTransform(c, f),
                   ReplacementTransform(d, f),
                   ReplacementTransform(e, f))
+        self.wait(.5)
         f1 = Texx(*ftext)
         self.add(f1)
         self.play(f1.animate.to_edge(RIGHT).shift(2*UP))
+        self.wait(.5)
 
         g = Texx('M + t u', '=', r'N + t^\prime v')
         self.play(TransformMatchingTex(f, g))
@@ -178,7 +183,9 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.play(ReplacementTransform(g, h))
         i = Texx(r't^\prime', '= ', r'\frac{y_M - y_N + t y_u}{y_v}')
         self.play(ReplacementTransform(h, i))
+        self.wait(.5)
         self.play(i.animate.next_to(f1, DOWN))
+        self.wait(.5)
 
         f2 = Texx(*ftext).move_to(f1)
         self.add(f2)
@@ -187,30 +194,34 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.play(TransformMatchingTex(f2, k))
         p = Texx('x_M + t x_u', '=', r'x_N + t^\prime x_v')
         self.play(ReplacementTransform(k, p))
+        self.wait(.5)
         p_ = Texx('x_M + t x_u', '= ', 'x_N +', 't^\prime', 'x_v')
         self.add(p_)
         self.remove(p)
 
         q = Texx('x_M + t x_u', '=', 'x_N +', r'\frac{y_M - y_N + t y_u}{y_v}', 'x_v')
         self.play(TransformMatchingTex(VGroup(i, p_), q))
+        self.wait(.5)
         r = Texx('x_M + t x_u', '=', 'x_N +', '(y_M - y_N', '+', 't y_u', ')', r'\frac{x_v}{y_v}')
         self.play(ReplacementTransform(q, r))
         s = Texx('x_M + t x_u', '=', 'x_N +', '(y_M - y_N', ')', r'\frac{x_v}{y_v}', '+ t y_u', r'\frac{x_v}{y_v}')
         self.play(TransformMatchingTex(r, s))
+        self.wait(.5)
         t = Texx(r'x_M - x_N - (y_M - y_N)\frac{x_v}{y_v}', '=', r't y_u\frac{x_v}{y_v} - t x_u')
         self.play(ReplacementTransform(s, t))
         u = Texx(r'x_M - x_N - (y_M - y_N)\frac{x_v}{y_v}', '=', r't (y_u\frac{x_v}{y_v} - x_u)')
         self.play(ReplacementTransform(t, u))
         v = VGroup(Tex('with'), Texx(r't', '=', r'\frac{x_M - x_N - (y_M - y_N)\frac{x_v}{y_v}}{y_u\frac{x_v}{y_v} - x_u}')).arrange(RIGHT, buff=.1)
         self.play(ReplacementTransform(u, v))
-        self.play(f1.animate.move_to(ORIGIN), v.animate.shift(DOWN))
-        w = Texx('P', '=', 'M + t u')
+        self.play(f1.animate.next_to(v, UP).shift(.5*DOWN),
+                  v.animate.shift(.5*DOWN),
+                  FadeOut(section))
+        w = Texx('P', '=', 'M + t u').move_to(f1)
         self.play(TransformMatchingTex(f1, w))
 
         self.wait()
 
     def fourth_scene(self):
-        """
         bounds = get_bounds(self.camera, 0)
         np.random.seed(0)
         cells = [Cell(v2(np.random.uniform(bounds.left+1, bounds.right-1),
@@ -254,14 +265,13 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         self.wait()
         self.play(FadeOut(vertices))
         self.wait()
-        """
 
         t = ValueTracker(0)
         vec = Vector(color=COL1)
 
         def create_number():
             pos = vec.get_end()
-            angle = round(atan2(pos[1], pos[0])*360) % 360
+            angle = round(atan2(pos[1], pos[0])/tau*360) % 360
             return MathTex('%d\deg' % angle, font_size=48).set_color(COL1).next_to(text2)
 
         text1 = Tex('atan2(', '$y$, $x$', ')', font_size=100).set_color('#FF0000')
@@ -309,7 +319,7 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         for point in points:
             circle = Circle(radius=.05, color=COL1).move_to(point)
             self.add(circle)
-            self.play(circle.animate.scale(10).set_opacity(0), run_time=.5)
+            self.play(circle.animate.scale(10).set_opacity(0), run_time=.7)
             self.remove(circle)
         self.wait()
 
@@ -343,7 +353,7 @@ We therefore conclude that the intersection point between $A$, $B$ and $C$, the 
         bounds = Bounds(left, top*3, w, h*3)
         A, B, C, D = cells = [Cell(v2(-w*.15, 0)), Cell(v2(w*.15, 0)), Cell(v2(0, h*.9)), Cell(v2(0, -h*.9))]
         col1 = lambda t: COL2 + (COL1-COL2)*t
-        col2 = COL4
+        col2 = TRANSPARENT
 
         dots = VGroup(Dot((u.x, u.y, 0), radius=.15, color=FG) for u in [A.pos, B.pos])
 

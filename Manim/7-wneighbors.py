@@ -58,7 +58,7 @@ class Main(Scene):
 
             # hide the unused polygons
             for i, polygon in enumerate(polygons):
-                polygons[i].set_opacity(i < index)
+                polygon.set_stroke(opacity=i < index)
 
         cells_updater = None
         t = ValueTracker(0)
@@ -87,7 +87,7 @@ class Main(Scene):
 
         dummy = [(-1, 0, 0), (1, 0, 0), (0, 1.41, 0)]
         buffer = 5
-        polygons = VGroup(Polygon(*dummy, fill_opacity=0, stroke_color=FG)
+        polygons = VGroup(Polygon(*dummy, fill_opacity=.5, stroke_color=FG)
                           for _ in range(len(cells)+buffer))
         cells_updater = cells_updater1
         polygons_updater(None)

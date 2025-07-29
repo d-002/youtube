@@ -20,17 +20,18 @@ class Main(Scene):
         rest = self.second_scene(cells)
         self.third_scene(cells, *rest)
 
+        self.clear()
+        self.end_scene()
+
     def first_scene(self):
-        svg = SVGMobject('resources/voronoy.svg').scale(2.5).shift(.3*UP)
-        img = ImageMobject('resources/voronoy.png').scale(2.5/4).shift(.3*UP)
+        svg = SVGMobject('resources/voronoy.svg').scale(2.85).shift(.3*UP)
+        img = ImageMobject('resources/voronoy.png').scale(.625).shift(.3*UP)
         alt = Text('Georgy Feodosevich Voronyi', font_size=20).next_to(img, DOWN)
 
         example = SVGMobject('resources/diagram_example.svg').shift(20*RIGHT).scale(3)
 
-        self.play(
-            Succession(Wait(1), Create(svg).set_run_time(5).set_rate_func(linear)),
-            Write(alt.set_run_time(1))
-        )
+        self.play(Write(alt))
+        self.play(Create(svg), run_time=5, rate_func=linear)
         self.play(
             FadeIn(img),
             # can't use group here
@@ -201,11 +202,7 @@ class Main(Scene):
                   run_time=3)
         self.wait()
 
-class End(Scene):
-    def construct(self):
-        Text.set_default(color=FG)
-        self.camera.background_color = BG
-
+    def end_scene(self):
         cells = [Cell(v2(-1, -2), 1), Cell(v2(4, 0), 1), Cell(v2(2, 2), 1)]
         bounds = get_bounds(self.camera, 0)
         colors = [COL1, COL2, COL3]
@@ -222,6 +219,5 @@ class End(Scene):
                   polygons[2].animate.set_fill(opacity=1))
         self.wait()
 
-        self.play(Unwrite(text), Unwrite(polygons), Unwrite(dots),
-                  run_time=3, lag_ratio=.2)
+        self.play(FadeOut(text, polygons, dots), run_time=2)
         self.wait()

@@ -43,7 +43,7 @@ class VoronoiAnim:
             polygon = self.polygons[index]
 
             # hard-code hide polygon if too small
-            if len(points) < 5:
+            if len(points) < 6:
                 polygon.set_opacity(0)
             else:
                 polygon.set_points_as_corners(points)

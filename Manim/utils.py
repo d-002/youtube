@@ -113,7 +113,7 @@ def add_polygons_margin(dots, polygons, margin):
 
         polygon.points = np.array(points_l)
 
-options = Options(segments_density=10, divide_lines=True, complete_polygons=False)
+options = Options(segments_density=20, divide_lines=True, complete_polygons=False)
 
 number_plane_config = {
         'axis_config': {

@@ -61,6 +61,8 @@ class Main(Scene):
         self.second_scene()
         self.clear()
         self.third_scene()
+        self.clear()
+        self.fourth_scene()
 
     def first_scene(self):
         np.random.seed(100)
@@ -156,8 +158,8 @@ class Main(Scene):
                 index += 1
 
             # hide the unused polygons
-            for i in range(index, len(polygons_mo)):
-                polygons_mo[i].set_opacity(0)
+            for i, polygon in enumerate(polygons_mo):
+                polygon.set_stroke(opacity=i < index)
 
         self.play(polygon.animate.shift(center))
 
@@ -263,11 +265,13 @@ class Main(Scene):
         self.wait()
 
         arc0.set_stroke(width=4)
-        arc1.set_stroke(width=4)
         segment = Line(dots[0], dots[1], color=FG)
         self.play(Write(segment))
         self.wait()
         self.play(Write(arc0))
+        self.wait()
+
+        self.play(FadeOut(polygons, segment, arc0, dots))
         self.wait()
 
     def third_scene(self):
@@ -317,3 +321,42 @@ class Main(Scene):
         polygons_mo.add_updater(polygons_updater)
         self.play(t.animate.set_value(1), rate_func=linear, run_time=30)
         polygons_mo.clear_updaters()
+
+    def fourth_scene(self):
+        A = Dot(color=COL1).shift(2*LEFT).set_z_index(1)
+        B = Dot(color=COL1).shift(2*RIGHT).set_z_index(1)
+
+        def make_arc(n):
+            points = []
+            for i in range(0, n+1):
+                angle = np.pi - np.pi*i/n
+                points.append((np.cos(angle)*2, np.sin(angle)*2, 0))
+
+            arc.set_points_as_corners(points)
+
+        def updater(_):
+            make_arc(round(t.get_value()))
+
+        line = Line(A, B)
+        arc = VMobject(color=FG)
+        make_arc(50)
+
+        self.wait()
+        self.play(Write(A), Write(B))
+        self.play(Write(line))
+        self.wait()
+        self.play(ReplacementTransform(line, arc))
+        self.wait()
+
+        self.play(FadeOut(arc))
+        t = ValueTracker(1)
+        make_arc(1)
+        self.play(FadeIn(arc))
+        self.wait()
+
+        arc.add_updater(updater)
+        self.play(t.animate.set_value(50), rate_func=rush_into, run_time=3)
+        arc.clear_updaters()
+        self.wait()
+
+        self.play(FadeOut(A, B, arc))

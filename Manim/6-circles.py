@@ -16,10 +16,10 @@ class Main(Scene):
         Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
-        #self.first_scene()
-        #self.clear()
-        #self.second_scene()
-        #self.clear()
+        self.first_scene()
+        self.clear()
+        self.second_scene()
+        self.clear()
         self.third_scene()
 
     def stick_draw(self, sticks, center, radius, draw_circle=True, **kwargs):
@@ -184,6 +184,9 @@ class Main(Scene):
         polygons.clear_updaters()
         self.wait()
 
+        self.play(FadeOut(centers, sticks, polygons))
+        self.wait()
+
     def second_scene(self):
         t2c.update({'w_A': COL1, 'w_B': COL2})
         Tex.set_default(tex_template=template)
@@ -204,14 +207,17 @@ class Main(Scene):
         e = Texx(r'w_A \lVert P-A \rVert', '=', r'w_B \lVert P-B \rVert')
         d.next_to(e, UP)
         self.play(AnimationGroup(FadeIn(d), Write(e), lag_ratio=.5))
-        self.wait(.5)
+        self.wait()
 
         f = Texx(r'w_A \lVert P-A \rVert', '-', r'w_B \lVert P-B \rVert', '= 0')
         self.play(FadeOut(d), ReplacementTransform(e, f))
+        self.wait(.5)
         g = Texx(r'w_A \sqrt{(x-x_A)^2 + (y-y_A)^2}', '-', 'w_B \sqrt{(x-x_B)^2 + (y-y_B)^2}', '= 0')
         self.play(ReplacementTransform(f, g), run_time=1.5)
+        self.wait(.5)
         h = Texx(r'w_A^2 ((x-x_A)^2 + (y-y_A)^2)', '-', 'w_B^2 ((x-x_B)^2 + (y-y_B)^2)', '= 0')
         self.play(ReplacementTransform(g, h))
+        self.wait(.5)
         self.play(h.animate.to_edge(DOWN))
 
         main_board = VGroup(title, h)
@@ -224,15 +230,18 @@ class Main(Scene):
 
         title2 = Tex('Finding a way to rewrite stuff for later', font_size=48).to_edge(UP)
         self.play(FadeIn(title2))
+        self.wait(.5)
 
         j = Texx('a x^2 + b x', '=', r'\mu ((x-\alpha)^2', r'+ \gamma)')
         j2 = Texx('a x^2 + b x', '=', r'\mu ((x-\alpha)^2', r'+ \gamma)')
-        comment = Tex(r'finding $\mu, \alpha, \gamma$ so that:', color=GRAY).next_to(j, UP)
+        comment = Tex(r'Finding $\mu, \alpha, \gamma$ so that:', color=GRAY).next_to(j, UP)
         self.play(Write(j), FadeIn(comment))
+        self.wait(.5)
         self.add(j2)
         k = Texx('a x^2 + b x', '=', r'\mu x^2 - 2\alpha\mu x + \alpha^2', r'+ \gamma').next_to(j, DOWN)
         self.play(ReplacementTransform(j, k), FadeOut(comment))
         self.play(j2.animate.shift(2*UP), k.animate.shift(2*UP))
+        self.wait(.5)
 
         l = Texx(r"""
 \begin{cases}
@@ -240,21 +249,26 @@ class Main(Scene):
     b = 2\alpha\mu \\
     0 = \alpha^2 + \gamma
 \end{cases}""").shift(DOWN)
-        self.play(Write(l))
+        comment = Tex('Substitution', color=GRAY).next_to(l, UP)
+        self.play(Write(l), FadeIn(comment))
+        self.wait(.5)
         m = Texx(r"""\begin{cases}
     \mu = a \\
     \alpha = -\frac{b}{2 a} \\
     \gamma = -\frac{b^2}{4 a^2}
 \end{cases}""").move_to(l)
-        self.play(ReplacementTransform(l, m))
+        self.play(ReplacementTransform(l, m), FadeOut(comment))
+        self.wait(.5)
         self.play(FadeOut(k), j2.animate.shift(DOWN))
         j3 = Texx('a x^2 + b x =', r'\mu', r'((x-\alpha)^2', r'+ \gamma)').shift(UP)
         self.remove(j2)
         self.add(j3)
         l = Texx('a x^2 + b x =', r'a', r'((x - \frac{b}{2 a})^2', r'- \frac{b^2}{4 a^2})').shift(UP)
         self.play(ReplacementTransform(j3, l))
+        self.wait(.5)
 
         self.play(FadeOut(m), l.animate.shift(DOWN))
+        self.wait(.5)
         m = Texx(r'a x^2 + b x = a ((x - \frac{b}{2 a})^2 - \frac{b^2}{4 a^2})')
         self.remove(l)
         self.add(m)
@@ -264,39 +278,50 @@ class Main(Scene):
         self.remove(title2)
 
         self.play(h2.animate.move_to(ORIGIN), m.animate.to_edge(DOWN))
+        self.wait(.5)
         n = Texx('w_A^2 (x-x_A)^2', '+', 'w_A^2 (y-y_A)^2', '-', 'w_B^2 (x-x_B)^2', '-', 'w_B^2 (y-y_B)^2', '=', '0', font_size=40)
         self.play(ReplacementTransform(h2, n))
+        self.wait(.5)
         o = Texx('w_A^2 (x-x_A)^2', '-', 'w_B^2 (x-x_B)^2', '+', 'w_A^2 (y-y_A)^2', '-', 'w_B^2 (y-y_B)^2', '=', '0', font_size=40)
         self.play(ReplacementTransform(n, o))
+        self.wait(.5)
         p = VGroup(Texx('w_A^2', '(x-x_A)^2', '-', 'w_B^2', '(x-x_B)^2'),
                    Texx('+', 'w_A^2', '(y-y_A)^2', '-', 'w_B^2', '(y-y_B)^2'),
                    Texx('= 0')).arrange(DOWN)
         self.play(ReplacementTransform(o, p))
+        self.wait(.5)
         q = VGroup(Texx('w_A^2', '(x^2 - 2 x x_A + x_A^2)', '-', 'w_B^2', '(x^2 - 2 x x_B + x_B^2)'),
                    Texx('+', 'w_A^2', '(y^2 - 2 y y_A + y_A^2)', '-', 'w_B^2', '(y^2 - 2 y y_B + y_B^2)'),
                    Texx('= 0')).arrange(DOWN)
         self.play(ReplacementTransform(p, q))
+        self.wait(.5)
         r = VGroup(Texx('w_A^2', '(x^2 - 2 x x_A)', '-', 'w_B^2', '(x^2 - 2 x x_B)'),
                    Texx('+ w_A^2', '(y^2 - 2 y y_A)', '-', 'w_B^2', '(y^2 - 2 y y_B)'),
                    Texx('+ w_A^2 x_A^2', '- w_B^2 x_B^2', '+ w_A^2 y_A^2', '- w_B^2 y_B^2', '= 0')).arrange(DOWN)
         self.play(ReplacementTransform(q, r))
+        self.wait(.5)
         s = VGroup(Texx('w_A^2 x^2', '-', 'w_A^2 2 x x_A', '-', 'w_B^2 x^2', '+', 'w_B^2 2 x x_B'),
                    Texx('+ w_A^2 y^2', '-', 'w_A^2 2 y y_A', '-', 'w_B^2 y^2', '+', 'w_B^2 2 y y_B'),
                    Texx('+ w_A^2 x_A^2', '- w_B^2 x_B^2', '+ w_A^2 y_A^2', '- w_B^2 y_B^2', '= 0')).arrange(DOWN)
         self.play(ReplacementTransform(r, s))
+        self.wait(.5)
         t = VGroup(Texx('w_A^2 x^2', '-', 'w_B^2 x^2', '+', 'w_B^2 2 x x_B', '-', 'w_A^2 2 x x_A'),
                    Texx('+ w_A^2 y^2', '-', 'w_B^2 y^2', '+', 'w_B^2 2 y y_B', '-', 'w_A^2 2 y y_A'),
                    Texx('+ w_A^2 x_A^2', '- w_B^2 x_B^2', '+ w_A^2 y_A^2', '- w_B^2 y_B^2', '= 0')).arrange(DOWN)
         self.play(ReplacementTransform(s, t))
+        self.wait(.5)
         u1 = VGroup(Texx('(w_A^2 - w_B^2) x^2', '+ 2(w_B^2 x_B - w_A^2 x_A) x'),
                    Texx('+ (w_A^2 - w_B^2) y^2', '+ 2(w_B^2 y_B - w_A^2 y_A) y'),
                    Texx('+ (w_A x_A)^2', '- (w_B x_B)^2', '+ (w_A y_A)^2', '- (w_B y_B)^2', '= 0')).arrange(DOWN)
         self.play(ReplacementTransform(t, u1))
+        self.wait(.5)
 
         v1 = Texx(r"""
 \begin{cases}
 \end{cases}""").shift(1.5*DOWN)
-        self.play(u1.animate.shift(UP), Write(v1))
+        comment = Tex('Simplifying expression', color=GRAY).next_to(v1, UP)
+        self.play(u1.animate.shift(UP), Write(v1), FadeIn(comment))
+        self.wait(.5)
 
         u2 = VGroup(Texx('a x^2', '+ 2(w_B^2 x_B - w_A^2 x_A) x'),
                    Texx('+ (w_A^2 - w_B^2) y^2', '+ 2(w_B^2 y_B - w_A^2 y_A) y'),
@@ -305,7 +330,9 @@ class Main(Scene):
 \begin{cases}
     a = w_A^2 - w_B^2
 \end{cases}""").shift(1.5*DOWN)
-        self.play(ReplacementTransform(u1, u2), ReplacementTransform(v1, v2))
+        self.play(ReplacementTransform(u1, u2),
+                  ReplacementTransform(v1, v2),
+                  FadeOut(comment))
         u3 = VGroup(Texx('a x^2', '+ b x'),
                    Texx('+ (w_A^2 - w_B^2) y^2', '+ 2(w_B^2 y_B - w_A^2 y_A) y'),
                    Texx('+ (w_A x_A)^2', '- (w_B x_B)^2', '+ (w_A y_A)^2', '- (w_B y_B)^2', '= 0')).arrange(DOWN).shift(UP)
@@ -348,32 +375,42 @@ class Main(Scene):
     e = (w_A x_A)^2 - (w_B x_B)^2 + (w_A y_A)^2 - (w_B y_B)^2
 \end{cases}""", font_size=26).shift(1.5*DOWN)
         self.play(ReplacementTransform(u5, u6), ReplacementTransform(v5, v6))
+        self.wait(.5)
         u7 = Texx('a x^2 + b x', '+', 'a y^2 + d y', '+', 'e = 0').shift(UP)
         self.play(ReplacementTransform(u6, u7))
 
         self.play(u7.animate.shift(DOWN), FadeOut(v6))
+        self.wait(.5)
 
         u8 = Texx('(a x^2 + b x)', '+', '(a y^2 + d y)', '+', 'e = 0')
         self.play(ReplacementTransform(u7, u8))
+        self.wait(.5)
         u9 = Texx(r'(a (x - \frac{b}{2 a})^2', r'- \frac{b^2}{4 a^2})', '+', r'(a (y - \frac{d}{2 a})^2 - \frac{d^2}{4 a^2})', '+', 'e = 0')
         self.play(ReplacementTransform(VGroup(u8, m), u9))
+        self.wait(.5)
         u10 = Texx(r'a (x - \frac{b}{2 a})^2', '-', r'\frac{b^2}{4 a^2}', '+', r'a (y - \frac{d}{2 a})^2', '-', r'\frac{d^2}{4 a^2}', '+', 'e = 0')
         self.play(ReplacementTransform(u9, u10))
+        self.wait(.5)
         u11 = Texx(r'a (x - \frac{b}{2 a})^2', '+', r'a (y - \frac{d}{2 a})^2', '-', r'\frac{d^2}{4 a^2}', '-', r'\frac{b^2}{4 a^2}', '+', 'e = 0')
         self.play(ReplacementTransform(u10, u11))
         u12 = Texx(r'(x - \frac{b}{2 a})^2', '+', r'(y - \frac{d}{2 a})^2', '-', r'\frac{b^2}{4 a^3}', '-', r'\frac{d^2}{4 a^3}', '+', r'\frac{e}{a} = 0')
         self.play(ReplacementTransform(u11, u12))
+        self.wait(.5)
 
         w1 = Texx(r"""
 \begin{cases}
 \end{cases}""").shift(1.5*DOWN)
-        self.play(u12.animate.shift(UP), Write(w1))
+        comment = Tex('Simplifying expression', color=GRAY).next_to(w1, UP)
+        self.play(u12.animate.shift(UP), Write(w1), FadeIn(comment))
+        self.wait(.5)
         u13 = Texx('(x - x_0)^2', '+', r'(y - \frac{d}{2 a})^2', '-', r'\frac{b^2}{4 a^3}', '-', r'\frac{d^2}{4 a^3}', '+', r'\frac{e}{a} = 0').shift(UP)
         w2 = Texx(r"""
 \begin{cases}
     x_0 = \frac{b}{2 a}
 \end{cases}""").shift(1.5*DOWN)
-        self.play(ReplacementTransform(u12, u13), ReplacementTransform(w1, w2))
+        self.play(ReplacementTransform(u12, u13),
+                  ReplacementTransform(w1, w2),
+                  FadeOut(comment))
         u14 = Texx('(x - x_0)^2', '+', r'(y - y_0)^2', '-', r'\frac{b^2}{4 a^3}', '-', r'\frac{d^2}{4 a^3}', '+', r'\frac{e}{a} = 0').shift(UP)
         w3 = Texx(r"""
 \begin{cases}
@@ -389,10 +426,11 @@ class Main(Scene):
     r^2 = \frac{e}{a} - \frac{b^2}{4 a^3} - \frac{d^2}{4 a^3}
 \end{cases}""").shift(1.5*DOWN)
         self.play(ReplacementTransform(u14, u15), ReplacementTransform(w3, w4))
+        self.wait(.5)
 
         self.play(u15.animate.shift(DOWN), FadeOut(w4))
         circle = Tex('Equation of a circle', color=GRAY).next_to(u15, UP)
-        self.play(Write(circle))
+        self.play(FadeIn(circle))
         self.wait()
 
         self.play(FadeOut(title, u15, circle))
@@ -450,4 +488,7 @@ class Main(Scene):
         polygons.set_opacity(0)
         self.play(everything.animate.shift(-shift).scale(1/scale))
         self.play(polygons.animate.set_opacity(1), FadeOut(vertices))
+        self.wait()
+
+        self.play(FadeOut(polygons, edges))
         self.wait()

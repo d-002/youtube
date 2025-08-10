@@ -2,3 +2,4 @@ __pycache__
 .qbuild
 media
 Manim/.cache
+fast_voronoi

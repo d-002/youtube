@@ -29,4 +29,5 @@ def theme_func_gradient(bounds, cell):
 THEME1 = _make_gradient((0, 224, 138), (153, 51, 255), 10)
 THEME2 = _make_gradient((243, 243, 43), (255, 165, 61), 6)
 THEME3 = _make_gradient((129, 49, 127), (49, 109, 129), 6)
+THEME4 = _make_gradient((176, 128, 93), (117, 124, 201), 15)
 TRANSPARENT = ManimColor.from_rgb((0, 0, 0, 0))

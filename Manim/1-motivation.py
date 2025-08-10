@@ -1,4 +1,3 @@
-from random import randint
 from math import cos, sin, pi, tau
 from manim import *
 
@@ -14,14 +13,11 @@ class Main(Scene):
         Text.set_default(color=FG, stroke_color=FG)
         self.camera.background_color = BG
 
-        cells = [Cell(v2(-1, -2), 1), Cell(v2(4, 0), 1), Cell(v2(2, 2), 1)]
-
         self.first_scene()
-        rest = self.second_scene(cells)
-        self.third_scene(cells, *rest)
-
         self.clear()
-        self.end_scene()
+        self.second_scene()
+        self.clear()
+        self.third_scene()
 
     def first_scene(self):
         svg = SVGMobject('resources/voronoy.svg').scale(2.85).shift(.3*UP)
@@ -44,22 +40,45 @@ class Main(Scene):
                   run_time=2)
         self.remove(svg, img, alt, example)
 
-    def second_scene(self, cells):
+    def second_scene(self):
         bounds = get_bounds(self.camera, 1)
+        np.random.seed(0)
+        cells = [Cell(v2(np.random.uniform(bounds.left+1, bounds.right-1),
+                         np.random.uniform(bounds.top+1, bounds.bottom-1)))
+                 for _ in range(10)]
+
+        polygons, dots, colors = make_polygons_and_dots(cells, bounds, THEME4, theme_func_gradient)
+        polygons_stroke = VGroup()
+        for color, polygon in zip(colors, polygons.set_z_index(-1)):
+            polygons_stroke += polygon.copy().set_fill(opacity=0).set_stroke(width=6)
+            polygon.set_stroke(color=color, width=0)
+
+        self.play(Write(polygons))
+        self.wait()
+        self.play(AnimationGroup(
+            (Succession(Write(polygon), Unwrite(polygon), run_time=.5)
+             for polygon in polygons_stroke),
+            lag_ratio=.1, run_time=2))
+        self.wait()
+        self.play(Write(dots))
+        self.wait()
+
+        center = polygons[0]
+        color2 = colors[0]*.7 + FG*.3
+        self.play(center.animate.set_fill(color=color2).set_stroke(color=FG, width=6))
+        self.wait()
+        self.play(center.animate.set_fill(color=color).set_stroke(width=0))
+        self.wait()
+
+    def third_scene(self):
+        bounds = get_bounds(self.camera, 1)
+        cells = [Cell(v2(-1, -2), 1), Cell(v2(4, 0), 1), Cell(v2(2, 2), 1)]
         colors = [COL1, COL2, COL3]
         polygons, dots = make_polygons_and_dots(cells, bounds, colors)
         polygons.set_z_index(-2)
 
-        self.play(FadeIn(polygons))
-        self.wait()
         self.play(Write(dots))
-        self.wait()
-        self.play(FadeOut(polygons))
 
-        return dots, polygons
-
-    def third_scene(self, cells, dots, polygons):
-        bounds = get_bounds(self.camera, 0)
         around = Square(6).set_stroke(GRAY, width=1)
         res = 30
         res2 = res//2
@@ -74,7 +93,8 @@ class Main(Scene):
             self.add(screen, around)
         self.wait()
 
-        rand_colors = [ManimColor.from_rgb((randint(0, 255),)*3) for i in range(900)]
+        np.random.seed(0)
+        rand_colors = [ManimColor.from_rgb((np.random.randint(0, 255),)*3) for i in range(900)]
         if PRODUCTION:
             self.play(AnimationGroup(
                 (Succession(ApplyMethod(rect.set_fill, color, 1),
@@ -176,7 +196,7 @@ class Main(Scene):
                 rect.set_fill(opacity=0)
 
         for n in range(5):
-            rect = screen[randint(0, res*res-1)]
+            rect = screen[np.random.randint(0, res*res-1)]
             pos = rect.get_center()
             lines = VGroup(Line(pos, dot.get_center(), color=COL4) for dot in dots)
             self.play(Create(lines, lag_ratio=.5), run_time=.5)
@@ -200,24 +220,4 @@ class Main(Scene):
         self.play(FadeIn(polygons))
         self.play((polygon.animate.set_fill(opacity=1) for polygon in polygons),
                   run_time=3)
-        self.wait()
-
-    def end_scene(self):
-        cells = [Cell(v2(-1, -2), 1), Cell(v2(4, 0), 1), Cell(v2(2, 2), 1)]
-        bounds = get_bounds(self.camera, 0)
-        colors = [COL1, COL2, COL3]
-        polygons, dots = make_polygons_and_dots(cells, bounds, colors)
-
-        self.play(AnimationGroup(FadeIn(polygons), Write(dots)), lag_ratio=.5)
-        self.wait()
-        self.play(polygons[1].animate.set_fill(opacity=.1),
-                  polygons[2].animate.set_fill(opacity=.1))
-        text = Text('All closer to the red site', font_size=24).to_corner(DL)
-        self.play(Write(text), run_time=2)
-        self.wait()
-        self.play(polygons[1].animate.set_fill(opacity=1),
-                  polygons[2].animate.set_fill(opacity=1))
-        self.wait()
-
-        self.play(FadeOut(text, polygons, dots), run_time=2)
         self.wait()

@@ -1,0 +1,27 @@
+[project]
+name = "minesweeper"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.14"
+dependencies = [
+    "pytest>=9.1.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+indent-width = 4
+line-length = 80
+
+[tool.ruff.lint]
+select = ["E", "I", "ANN"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"

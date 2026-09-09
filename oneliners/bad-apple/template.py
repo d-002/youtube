@@ -1,0 +1,1 @@
+import time as t;(lambda w,h,d,F:[(lambda a:([(lambda o:(c!='\n'and a.__setitem__(0,a[0]+' █'[o&1]*(o>>1)),len(a[0])>=w and[print(a[0]),a.__setitem__(0,'')]))(ord(c)-33)for c in f+'\n'],print(f'\033[{h}A',end=''),t.sleep(max(0,d-t.time()+a[1]))))(['',t.time()])for f in F.split('\n')])(W_VALUE,H_VALUE,DELAY_VALUE,BAD_APPLE_STRING)
